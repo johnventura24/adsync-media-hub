@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adsync Media Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Adsync Media Hub</h1>
+                <div class="live-indicator">
+                    <div class="pulse"></div>
+                    <span>LIVE</span>
+                </div>
+                <div class="last-updated">
+                    Last Updated: <span id="lastUpdated">--</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- Goals Section -->
+            <section class="dashboard-card goals-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bullseye"></i> Goals</h2>
+                </div>
+                <div class="card-content">
+                    <div class="goal-item">
+                        <h3>Quarterly Goal</h3>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="quarterlyProgress"></div>
+                            </div>
+                            <div class="goal-stats">
+                                <span class="current" id="quarterlyCurrent">$0</span>
+                                <span class="target">/ $<span id="quarterlyTarget">0</span></span>
+                                <span class="percentage" id="quarterlyPercentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goal-item">
+                        <h3>Monthly Goal</h3>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="monthlyProgress"></div>
+                            </div>
+                            <div class="goal-stats">
+                                <span class="current" id="monthlyCurrent">$0</span>
+                                <span class="target">/ $<span id="monthlyTarget">0</span></span>
+                                <span class="percentage" id="monthlyPercentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Revenue Funnel -->
+            <section class="dashboard-card funnel-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-filter"></i> Revenue Funnel</h2>
+                </div>
+                <div class="card-content">
+                    <div class="funnel-container">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                    <div class="funnel-stats">
+                        <div class="funnel-stat">
+                            <span class="label">Leads</span>
+                            <span class="value" id="leads">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Prospects</span>
+                            <span class="value" id="prospects">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Qualified</span>
+                            <span class="value" id="qualified">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Proposals</span>
+                            <span class="value" id="proposals">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Closed</span>
+                            <span class="value" id="closed">0</span>
+                        </div>
+                        <div class="funnel-stat total">
+                            <span class="label">Revenue</span>
+                            <span class="value" id="revenue">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VTO Tracking -->
+            <section class="dashboard-card vto-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-calendar-alt"></i> VTO Tracking</h2>
+                </div>
+                <div class="card-content">
+                    <div class="vto-grid">
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoAvailable">0</div>
+                            <div class="vto-label">Available</div>
+                        </div>
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoUsed">0</div>
+                            <div class="vto-label">Used</div>
+                        </div>
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoPending">0</div>
+                            <div class="vto-label">Pending</div>
+                        </div>
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoRemaining">0</div>
+                            <div class="vto-label">Remaining</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Issues Tracker -->
+            <section class="dashboard-card issues-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Issues</h2>
+                </div>
+                <div class="card-content">
+                    <div class="issues-summary">
+                        <div class="total-issues">
+                            <span class="number" id="totalIssues">0</span>
+                            <span class="label">Total Issues</span>
+                        </div>
+                    </div>
+                    <div class="issues-breakdown">
+                        <div class="issue-type critical">
+                            <span class="count" id="criticalIssues">0</span>
+                            <span class="label">Critical</span>
+                        </div>
+                        <div class="issue-type high">
+                            <span class="count" id="highIssues">0</span>
+                            <span class="label">High</span>
+                        </div>
+                        <div class="issue-type medium">
+                            <span class="count" id="mediumIssues">0</span>
+                            <span class="label">Medium</span>
+                        </div>
+                        <div class="issue-type low">
+                            <span class="count" id="lowIssues">0</span>
+                            <span class="label">Low</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scorecard -->
+            <section class="dashboard-card scorecard-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-bar"></i> Scorecard</h2>
+                </div>
+                <div class="card-content">
+                    <div class="scorecard-grid">
+                        <div class="score-item">
+                            <div class="score-circle" id="customerSatisfactionCircle">
+                                <span id="customerSatisfaction">0</span>%
+                            </div>
+                            <div class="score-label">Customer Satisfaction</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-circle" id="teamEfficiencyCircle">
+                                <span id="teamEfficiency">0</span>%
+                            </div>
+                            <div class="score-label">Team Efficiency</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-circle" id="goalCompletionCircle">
+                                <span id="goalCompletion">0</span>%
+                            </div>
+                            <div class="score-label">Goal Completion</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-circle" id="qualityScoreCircle">
+                                <span id="qualityScore">0</span>%
+                            </div>
+                            <div class="score-label">Quality Score</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Knowledge Base -->
+            <section class="dashboard-card knowledge-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-book"></i> Knowledge Base</h2>
+                </div>
+                <div class="card-content">
+                    <div class="knowledge-links" id="knowledgeLinks">
+                        <!-- Links will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html> 
