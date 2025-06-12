@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adsync Media Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Adsync Media Hub</h1>
+                <div class="live-indicator">
+                    <div class="pulse"></div>
+                    <span>LIVE</span>
+                </div>
+                <div class="last-updated">
+                    Last Updated: <span id="lastUpdated">--</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- Goals Section -->
+            <section class="dashboard-card goals-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bullseye"></i> Goals</h2>
+                </div>
+                <div class="card-content">
+                    <div class="goal-item">
+                        <h3>Quarterly Goal</h3>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="quarterlyProgress"></div>
+                            </div>
+                            <div class="goal-stats">
+                                <span class="current" id="quarterlyCurrent">$0</span>
+                                <span class="target">/ $<span id="quarterlyTarget">0</span></span>
+                                <span class="percentage" id="quarterlyPercentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goal-item">
+                        <h3>Monthly Goal</h3>
+                        <div class="goal-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="monthlyProgress"></div>
+                            </div>
+                            <div class="goal-stats">
+                                <span class="current" id="monthlyCurrent">$0</span>
+                                <span class="target">/ $<span id="monthlyTarget">0</span></span>
+                                <span class="percentage" id="monthlyPercentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Revenue Funnel -->
+            <section class="dashboard-card funnel-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-filter"></i> Revenue Funnel</h2>
+                </div>
+                <div class="card-content">
+                    <div class="funnel-container">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                    <div class="funnel-stats">
+                        <div class="funnel-stat">
+                            <span class="label">Leads</span>
+                            <span class="value" id="leads">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Prospects</span>
+                            <span class="value" id="prospects">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Qualified</span>
+                            <span class="value" id="qualified">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Proposals</span>
+                            <span class="value" id="proposals">0</span>
+                        </div>
+                        <div class="funnel-stat">
+                            <span class="label">Closed</span>
+                            <span class="value" id="closed">0</span>
+                        </div>
+                        <div class="funnel-stat total">
+                            <span class="label">Revenue</span>
+                            <span class="value" id="revenue">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VTO Tracking -->
+            <section class="dashboard-card vto-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-calendar-alt"></i> VTO Tracking</h2>
+                </div>
+                <div class="card-content">
+                    <div class="vto-grid">
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoAvailable">0</div>
+                            <div class="vto-label">Available</div>
+                        </div>
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoUsed">0</div>
+                            <div class="vto-label">Used</div>
+                        </div>
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoPending">0</div>
+                            <div class="vto-label">Pending</div>
+                        </div>
+                        <div class="vto-item">
+                            <div class="vto-number" id="vtoRemaining">0</div>
+                            <div class="vto-label">Remaining</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Issues Tracker -->
+            <section class="dashboard-card issues-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Issues</h2>
+                </div>
+                <div class="card-content">
+                    <div class="issues-summary">
+                        <div class="total-issues">
+                            <span class="number" id="totalIssues">0</span>
+                            <span class="label">Total Issues</span>
+                        </div>
+                    </div>
+                    <div class="issues-breakdown">
+                        <div class="issue-type critical">
+                            <span class="count" id="criticalIssues">0</span>
+                            <span class="label">Critical</span>
+                        </div>
+                        <div class="issue-type high">
+                            <span class="count" id="highIssues">0</span>
+                            <span class="label">High</span>
+                        </div>
+                        <div class="issue-type medium">
+                            <span class="count" id="mediumIssues">0</span>
+                            <span class="label">Medium</span>
+                        </div>
+                        <div class="issue-type low">
+                            <span class="count" id="lowIssues">0</span>
+                            <span class="label">Low</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scorecard -->
+            <section class="dashboard-card scorecard-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-bar"></i> Scorecard</h2>
+                </div>
+                <div class="card-content">
+                    <div class="scorecard-grid">
+                        <div class="score-item">
+                            <div class="score-circle" id="customerSatisfactionCircle">
+                                <span id="customerSatisfaction">0</span>%
+                            </div>
+                            <div class="score-label">Customer Satisfaction</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-circle" id="teamEfficiencyCircle">
+                                <span id="teamEfficiency">0</span>%
+                            </div>
+                            <div class="score-label">Team Efficiency</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-circle" id="goalCompletionCircle">
+                                <span id="goalCompletion">0</span>%
+                            </div>
+                            <div class="score-label">Goal Completion</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-circle" id="qualityScoreCircle">
+                                <span id="qualityScore">0</span>%
+                            </div>
+                            <div class="score-label">Quality Score</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Knowledge Base -->
+            <section class="dashboard-card knowledge-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-book"></i> Knowledge Base</h2>
+                </div>
+                <div class="card-content">
+                    <div class="knowledge-links" id="knowledgeLinks">
+                        <!-- Links will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Access -->
+            <section class="dashboard-card quick-access-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bolt"></i> Quick Access</h2>
+                </div>
+                <div class="card-content">
+                    <div class="quick-access-grid">
+                        <div class="quick-access-item clickable-item" data-section="creative-team">
+                            <i class="fas fa-palette"></i>
+                            <span>Creative Team</span>
+                        </div>
+                        <div class="quick-access-item clickable-item" data-section="tech-team">
+                            <i class="fas fa-laptop-code"></i>
+                            <span>Tech Team</span>
+                        </div>
+                        <div class="quick-access-item clickable-item" data-section="sales-success">
+                            <i class="fas fa-handshake"></i>
+                            <span>Sales & Success</span>
+                        </div>
+                        <div class="quick-access-item clickable-item" data-section="accounting-team">
+                            <i class="fas fa-calculator"></i>
+                            <span>Accounting Team</span>
+                        </div>
+                        <div class="quick-access-item clickable-item" data-section="media-team">
+                            <i class="fas fa-video"></i>
+                            <span>Media Team</span>
+                        </div>
+                        <div class="quick-access-item clickable-item" data-section="jrs-knowledge-hub">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Jrs-Knowledge Hub</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Planner -->
+            <section class="dashboard-card planner-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-calendar"></i> Planner</h2>
+                </div>
+                <div class="card-content">
+                    <div class="planner-grid">
+                        <div class="planner-item clickable-item" data-section="monthly-schedule">
+                            <i class="fas fa-calendar-week"></i>
+                            <span>Monthly SCHEDULE</span>
+                        </div>
+                        <div class="planner-item clickable-item" data-section="team-updates">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Team UPDATES!</span>
+                        </div>
+                        <div class="planner-item clickable-item" data-section="meetings">
+                            <i class="fas fa-users"></i>
+                            <span>Meetings</span>
+                        </div>
+                        <div class="planner-item clickable-item" data-section="wiki">
+                            <i class="fas fa-book-open"></i>
+                            <span>Wiki</span>
+                        </div>
+                        <div class="planner-item clickable-item" data-section="projects">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>Projects</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Team -->
+            <section class="dashboard-card team-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-users"></i> Team</h2>
+                </div>
+                <div class="card-content">
+                    <div class="team-grid">
+                        <div class="team-item clickable-item" data-section="team-directory">
+                            <i class="fas fa-address-book"></i>
+                            <span>Team Directory</span>
+                        </div>
+                        <div class="team-item clickable-item" data-section="values-culture">
+                            <i class="fas fa-heart"></i>
+                            <span>Values & Culture</span>
+                        </div>
+                        <div class="team-item clickable-item" data-section="faq">
+                            <i class="fas fa-question-circle"></i>
+                            <span>FAQ</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Policies -->
+            <section class="dashboard-card policies-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-file-contract"></i> Policies</h2>
+                </div>
+                <div class="card-content">
+                    <div class="policies-grid">
+                        <div class="policies-item clickable-item" data-section="office-manual">
+                            <i class="fas fa-building"></i>
+                            <span>Office Manual</span>
+                        </div>
+                        <div class="policies-item clickable-item" data-section="vacation-policy">
+                            <i class="fas fa-umbrella-beach"></i>
+                            <span>Vacation Policy</span>
+                        </div>
+                        <div class="policies-item clickable-item" data-section="benefits-policies">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <span>Benefits Policies</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Documentation -->
+            <section class="dashboard-card documentation-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-file-alt"></i> Documentation</h2>
+                </div>
+                <div class="card-content">
+                    <div class="documentation-grid">
+                        <div class="documentation-item clickable-item" data-section="sops">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>SOPs</span>
+                        </div>
+                        <div class="documentation-item clickable-item" data-section="docs">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Docs</span>
+                        </div>
+                        <div class="documentation-item clickable-item" data-section="ideal-client-profiles">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Ideal Client Profiles</span>
+                        </div>
+                        <div class="documentation-item clickable-item" data-section="product-menu">
+                            <i class="fas fa-list-alt"></i>
+                            <span>Product Menu (Template)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for displaying section content -->
+    <div id="sectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Section Title</h2>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <p>Content will be loaded here. You can add data to this section later.</p>
+                    <button id="addDataBtn" class="add-data-btn">Add Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html> 
