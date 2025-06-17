@@ -5,6 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const cron = require('node-cron');
+const dataService = require('./data-service');
 require('dotenv').config();
 
 const app = express();
@@ -48,93 +49,98 @@ if (fs.existsSync(publicPath)) {
   app.use('/styles.css', express.static(path.join(__dirname, 'styles.css')));
 }
 
-// Sample data structure for dashboard metrics
-let dashboardData = {
-  goals: {
-    quarterly: {
-      target: 1000000,
-      current: 750000,
-      percentage: 75
-    },
-    monthly: {
-      target: 333333,
-      current: 280000,
-      percentage: 84
-    }
-  },
-  revenueFunnel: {
-    leads: 1250,
-    prospects: 875,
-    qualified: 425,
-    proposals: 180,
-    closed: 85,
-    revenue: 750000
-  },
-  vto: {
-    available: 240,
-    used: 165,
-    pending: 25,
-    remaining: 75
-  },
-  issues: {
-    critical: 3,
-    high: 12,
-    medium: 28,
-    low: 45,
-    total: 88
-  },
-  scorecard: {
-    customerSatisfaction: 92,
-    teamEfficiency: 88,
-    goalCompletion: 75,
-    qualityScore: 94
-  },
-  knowledgeBase: [
-    { title: "Employee Handbook", url: "#", category: "HR" },
-    { title: "Company Policies", url: "#", category: "HR" },
-    { title: "Marketing Guidelines", url: "#", category: "Marketing" },
-    { title: "Sales Playbook", url: "#", category: "Sales" },
-    { title: "Client Onboarding Process", url: "#", category: "Sales" },
-    { title: "Creative Brief Templates", url: "#", category: "Creative" },
-    { title: "Brand Guidelines", url: "#", category: "Creative" },
-    { title: "Technical Documentation", url: "#", category: "Tech" },
-    { title: "Project Management Tools", url: "#", category: "Operations" },
-    { title: "Emergency Contacts", url: "#", category: "Operations" }
-  ],
-  // New sections data
-  quickAccess: {
-    'creative-team': { title: 'Creative Team', data: [], icon: 'fas fa-palette' },
-    'tech-team': { title: 'Tech Team', data: [], icon: 'fas fa-laptop-code' },
-    'sales-success': { title: 'Sales & Success', data: [], icon: 'fas fa-handshake' },
-    'accounting-team': { title: 'Accounting Team', data: [], icon: 'fas fa-calculator' },
-    'media-team': { title: 'Media Team', data: [], icon: 'fas fa-video' },
-    'jrs-knowledge-hub': { title: 'Jrs-Knowledge Hub', data: [], icon: 'fas fa-graduation-cap' }
-  },
-  planner: {
-    'monthly-schedule': { title: 'Monthly Schedule', data: [], icon: 'fas fa-calendar-week' },
-    'team-updates': { title: 'Team Updates', data: [], icon: 'fas fa-bullhorn' },
-    'meetings': { title: 'Meetings', data: [], icon: 'fas fa-users' },
-    'wiki': { title: 'Wiki', data: [], icon: 'fas fa-book-open' },
-    'projects': { title: 'Projects', data: [], icon: 'fas fa-project-diagram' }
-  },
-  team: {
-    'team-directory': { title: 'Team Directory', data: [], icon: 'fas fa-address-book' },
-    'values-culture': { title: 'Values & Culture', data: [], icon: 'fas fa-heart' },
-    'faq': { title: 'FAQ', data: [], icon: 'fas fa-question-circle' }
-  },
-  policies: {
-    'office-manual': { title: 'Office Manual', data: [], icon: 'fas fa-building' },
-    'vacation-policy': { title: 'Vacation Policy', data: [], icon: 'fas fa-umbrella-beach' },
-    'benefits-policies': { title: 'Benefits Policies', data: [], icon: 'fas fa-hand-holding-heart' }
-  },
-  documentation: {
-    'sops': { title: 'SOPs', data: [], icon: 'fas fa-clipboard-list' },
-    'docs': { title: 'Docs', data: [], icon: 'fas fa-folder-open' },
-    'ideal-client-profiles': { title: 'Ideal Client Profiles', data: [], icon: 'fas fa-user-tie' },
-    'product-menu': { title: 'Product Menu (Template)', data: [], icon: 'fas fa-list-alt' }
-  },
-  lastUpdated: new Date().toISOString()
-};
+// Initialize dashboard data (will be replaced with live data)
+let dashboardData = {};
+
+// Initialize data service and fetch initial data
+async function initializeApp() {
+  console.log('🚀 Initializing Adsync Media Hub with data repository connections...');
+  
+  try {
+    // Initialize data service connections
+    await dataService.initialize();
+    
+    // Fetch initial dashboard data from repositories
+    dashboardData = await dataService.getAllDashboardData();
+    console.log('✅ Initial dashboard data loaded from repositories');
+    
+    // Start the server after data is loaded
+    server.listen(PORT, () => {
+      console.log(`🚀 Adsync Media Hub server running on port ${PORT}`);
+      console.log(`📊 Dashboard available at: http://localhost:${PORT}`);
+      console.log(`⚙️ Admin interface at: http://localhost:${PORT}/admin`);
+      console.log(`🔄 Data refresh interval: ${process.env.DATA_REFRESH_INTERVAL || '*/15 * * * *'}`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Failed to initialize application:', error);
+    console.log('🔄 Falling back to sample data...');
+    
+    // Use fallback sample data if repository connection fails
+    dashboardData = {
+      goals: {
+        quarterly: { target: 1000000, current: 750000, percentage: 75 },
+        monthly: { target: 333333, current: 280000, percentage: 84 }
+      },
+      revenueFunnel: {
+        leads: 1250, prospects: 875, qualified: 425, proposals: 180, closed: 85, revenue: 750000
+      },
+      vto: { available: 240, used: 165, pending: 25, remaining: 75 },
+      issues: { critical: 3, high: 12, medium: 28, low: 45, total: 88 },
+      scorecard: { customerSatisfaction: 92, teamEfficiency: 88, goalCompletion: 75, qualityScore: 94 },
+      knowledgeBase: [
+        { title: "Employee Handbook", url: "#", category: "HR" },
+        { title: "Company Policies", url: "#", category: "HR" },
+        { title: "Marketing Guidelines", url: "#", category: "Marketing" },
+        { title: "Sales Playbook", url: "#", category: "Sales" },
+        { title: "Client Onboarding Process", url: "#", category: "Sales" },
+        { title: "Creative Brief Templates", url: "#", category: "Creative" },
+        { title: "Brand Guidelines", url: "#", category: "Creative" },
+        { title: "Technical Documentation", url: "#", category: "Tech" },
+        { title: "Project Management Tools", url: "#", category: "Operations" },
+        { title: "Emergency Contacts", url: "#", category: "Operations" }
+      ],
+      quickAccess: {
+        'creative-team': { title: 'Creative Team', data: [], icon: 'fas fa-palette' },
+        'tech-team': { title: 'Tech Team', data: [], icon: 'fas fa-laptop-code' },
+        'sales-success': { title: 'Sales & Success', data: [], icon: 'fas fa-handshake' },
+        'accounting-team': { title: 'Accounting Team', data: [], icon: 'fas fa-calculator' },
+        'media-team': { title: 'Media Team', data: [], icon: 'fas fa-video' },
+        'jrs-knowledge-hub': { title: 'Jrs-Knowledge Hub', data: [], icon: 'fas fa-graduation-cap' }
+      },
+      planner: {
+        'monthly-schedule': { title: 'Monthly Schedule', data: [], icon: 'fas fa-calendar-week' },
+        'team-updates': { title: 'Team Updates', data: [], icon: 'fas fa-bullhorn' },
+        'meetings': { title: 'Meetings', data: [], icon: 'fas fa-users' },
+        'wiki': { title: 'Wiki', data: [], icon: 'fas fa-book-open' },
+        'projects': { title: 'Projects', data: [], icon: 'fas fa-project-diagram' }
+      },
+      team: {
+        'team-directory': { title: 'Team Directory', data: [], icon: 'fas fa-address-book' },
+        'values-culture': { title: 'Values & Culture', data: [], icon: 'fas fa-heart' },
+        'faq': { title: 'FAQ', data: [], icon: 'fas fa-question-circle' }
+      },
+      policies: {
+        'office-manual': { title: 'Office Manual', data: [], icon: 'fas fa-building' },
+        'vacation-policy': { title: 'Vacation Policy', data: [], icon: 'fas fa-umbrella-beach' },
+        'benefits-policies': { title: 'Benefits Policies', data: [], icon: 'fas fa-hand-holding-heart' }
+      },
+      documentation: {
+        'sops': { title: 'SOPs', data: [], icon: 'fas fa-clipboard-list' },
+        'docs': { title: 'Docs', data: [], icon: 'fas fa-folder-open' },
+        'ideal-client-profiles': { title: 'Ideal Client Profiles', data: [], icon: 'fas fa-user-tie' },
+        'product-menu': { title: 'Product Menu (Template)', data: [], icon: 'fas fa-list-alt' }
+      },
+      lastUpdated: new Date().toISOString()
+    };
+    
+    // Start server with fallback data
+    server.listen(PORT, () => {
+      console.log(`🚀 Adsync Media Hub server running on port ${PORT} (fallback mode)`);
+      console.log(`📊 Dashboard available at: http://localhost:${PORT}`);
+    });
+  }
+}
 
 // Routes
 app.get('/', (req, res) => {
@@ -200,6 +206,74 @@ app.get('/admin', (req, res) => {
 
 app.get('/api/dashboard', (req, res) => {
   res.json(dashboardData);
+});
+
+// Manual data refresh endpoint
+app.post('/api/refresh', async (req, res) => {
+  console.log('🔄 Manual data refresh requested...');
+  
+  try {
+    // Fetch fresh data from all repositories
+    const freshData = await dataService.getAllDashboardData();
+    
+    // Update the dashboard data
+    const previousData = JSON.stringify(dashboardData);
+    dashboardData = freshData;
+    
+    // Check if data actually changed
+    const newData = JSON.stringify(dashboardData);
+    const dataChanged = previousData !== newData;
+    
+    if (dataChanged) {
+      console.log('✅ Manual refresh completed - changes detected');
+      // Broadcast updates to all connected clients
+      io.emit('dashboardUpdate', { section: 'all', data: dashboardData });
+    } else {
+      console.log('📋 Manual refresh completed - no changes detected');
+    }
+    
+    res.json({
+      success: true,
+      message: 'Dashboard data refreshed successfully',
+      dataChanged,
+      lastUpdated: dashboardData.lastUpdated
+    });
+    
+  } catch (error) {
+    console.error('❌ Manual refresh failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to refresh dashboard data',
+      error: error.message
+    });
+  }
+});
+
+// Data source status endpoint
+app.get('/api/status', (req, res) => {
+  const status = {
+    server: 'running',
+    dataService: 'initialized',
+    connections: {
+      postgres: !!dataService.connections?.postgres,
+      mysql: !!dataService.connections?.mysql,
+      mongodb: !!dataService.connections?.mongodb
+    },
+    config: {
+      refreshInterval: process.env.DATA_REFRESH_INTERVAL || '*/15 * * * *',
+      autoRefreshEnabled: process.env.ENABLE_AUTO_REFRESH !== 'false',
+      apiEndpoints: {
+        funnelData: !!process.env.FUNNEL_API_URL,
+        goalsData: !!process.env.GOALS_API_URL,
+        vtoData: !!process.env.VTO_API_URL,
+        issuesData: !!process.env.ISSUES_API_URL,
+        scorecardData: !!process.env.SCORECARD_API_URL
+      }
+    },
+    lastUpdated: dashboardData.lastUpdated
+  };
+  
+  res.json(status);
 });
 
 app.post('/api/update', (req, res) => {
@@ -295,23 +369,43 @@ io.on('connection', (socket) => {
   });
 });
 
-// Schedule automatic updates (simulate real-time data changes)
-cron.schedule('*/30 * * * * *', () => {
-  // Simulate small changes in metrics every 30 seconds
-  const randomChange = () => Math.floor(Math.random() * 10) - 5;
-  
-  dashboardData.revenueFunnel.leads += randomChange();
-  dashboardData.revenueFunnel.prospects += Math.floor(randomChange() / 2);
-  dashboardData.goals.quarterly.current += Math.floor(Math.random() * 1000);
-  dashboardData.goals.quarterly.percentage = Math.round((dashboardData.goals.quarterly.current / dashboardData.goals.quarterly.target) * 100);
-  
-  dashboardData.lastUpdated = new Date().toISOString();
-  
-  // Broadcast updates to all connected clients
-  io.emit('dashboardUpdate', { section: 'all', data: dashboardData });
-});
+// Schedule automatic data refresh from repositories
+const refreshInterval = process.env.DATA_REFRESH_INTERVAL || '*/15 * * * *'; // Default: every 15 minutes
+const enableAutoRefresh = process.env.ENABLE_AUTO_REFRESH === 'true' || true;
 
-server.listen(PORT, () => {
-  console.log(`Adsync Media Hub server running on port ${PORT}`);
-  console.log(`Access your dashboard at: http://localhost:${PORT}`);
-}); 
+if (enableAutoRefresh) {
+  console.log(`🔄 Setting up automatic data refresh: ${refreshInterval}`);
+  
+  cron.schedule(refreshInterval, async () => {
+    console.log('🔄 Refreshing dashboard data from repositories...');
+    
+    try {
+      // Fetch fresh data from all repositories
+      const freshData = await dataService.getAllDashboardData();
+      
+      // Update the dashboard data
+      const previousData = JSON.stringify(dashboardData);
+      dashboardData = freshData;
+      
+      // Check if data actually changed
+      const newData = JSON.stringify(dashboardData);
+      const dataChanged = previousData !== newData;
+      
+      if (dataChanged) {
+        console.log('✅ Dashboard data refreshed - changes detected');
+        // Broadcast updates to all connected clients
+        io.emit('dashboardUpdate', { section: 'all', data: dashboardData });
+      } else {
+        console.log('📋 Dashboard data refreshed - no changes detected');
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to refresh dashboard data:', error);
+      // Don't update dashboardData if refresh fails, keep existing data
+    }
+  });
+} else {
+  console.log('⏸️ Automatic data refresh is disabled');
+}
+
+initializeApp(); 
