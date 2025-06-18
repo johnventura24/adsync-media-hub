@@ -92,7 +92,18 @@ class DataService {
   async getFunnelData() {
     console.log('📊 Fetching funnel data...');
     
-    // Try Tableau integration first (your specific dashboard)
+    // Try Environment Variables first (perfect for Render)
+    if (process.env.FUNNEL_DATA) {
+      try {
+        const envData = JSON.parse(process.env.FUNNEL_DATA);
+        console.log('✅ Funnel data fetched from environment variables');
+        return envData;
+      } catch (error) {
+        console.log('⚠️ Error parsing FUNNEL_DATA environment variable:', error.message);
+      }
+    }
+    
+    // Try Tableau integration second (your specific dashboard)
     try {
       const tableauData = await tableauIntegration.getFunnelData();
       if (tableauData) {
@@ -103,7 +114,7 @@ class DataService {
       console.log('⚠️ Tableau fetch failed, trying other sources:', error.message);
     }
     
-    // Try API second
+    // Try API third
     if (this.config.apis.funnelData) {
       try {
         const response = await axios.get(this.config.apis.funnelData, {
@@ -193,6 +204,17 @@ class DataService {
   // Fetch goals data
   async getGoalsData() {
     console.log('🎯 Fetching goals data...');
+    
+    // Try Environment Variables first (perfect for Render)
+    if (process.env.GOALS_DATA) {
+      try {
+        const envData = JSON.parse(process.env.GOALS_DATA);
+        console.log('✅ Goals data fetched from environment variables');
+        return envData;
+      } catch (error) {
+        console.log('⚠️ Error parsing GOALS_DATA environment variable:', error.message);
+      }
+    }
     
     if (this.config.apis.goalsData) {
       try {
@@ -293,7 +315,7 @@ class DataService {
     console.log('🔄 Fetching all dashboard data from repositories...');
     
     try {
-      const [goals, revenueFunnel, vto, issues, scorecard] = await Promise.all([
+      const [goals, funnelData, vto, issues, scorecard] = await Promise.all([
         this.getGoalsData(),
         this.getFunnelData(),
         this.getVTOData(),
@@ -301,12 +323,95 @@ class DataService {
         this.getScorecardData()
       ]);
 
+      // Handle both old format (combined) and new format (separated Google/Facebook)
+      let revenueFunnel;
+      if (funnelData.google && funnelData.facebook) {
+        // New separated format - convert to frontend-compatible format
+        const googleDaily = funnelData.google.daily || funnelData.google;
+        const facebookDaily = funnelData.facebook.daily || funnelData.facebook;
+        
+        // Create combined metrics for the main funnel display (frontend compatibility)
+        revenueFunnel = {
+          // Main funnel metrics (for frontend compatibility)
+          leads: (googleDaily.leads || 0) + (facebookDaily.leads || 0),
+          prospects: (googleDaily.prospects || 0) + (facebookDaily.prospects || 0),
+          qualified: (googleDaily.qualified || 0) + (facebookDaily.qualified || 0),
+          proposals: (googleDaily.proposals || 0) + (facebookDaily.proposals || 0),
+          closed: (googleDaily.closed || 0) + (facebookDaily.closed || 0),
+          revenue: (googleDaily.revenue || 0) + (facebookDaily.revenue || 0),
+          
+          // Separated platform data (for detailed analysis)
+          platforms: {
+            google: {
+              impressions: googleDaily.impressions || 0,
+              clicks: googleDaily.clicks || 0,
+              leads: googleDaily.leads || 0,
+              revenue: googleDaily.revenue || 0,
+              adSpend: googleDaily.adSpend || 0,
+              grossProfit: googleDaily.grossProfit || 0,
+              ctr: googleDaily.ctr || 0,
+              cpc: googleDaily.cpc || 0,
+              roas: googleDaily.roas || 0
+            },
+            facebook: {
+              impressions: facebookDaily.impressions || 0,
+              clicks: facebookDaily.clicks || 0,
+              leads: facebookDaily.leads || 0,
+              revenue: facebookDaily.revenue || 0,
+              adSpend: facebookDaily.adSpend || 0,
+              grossProfit: facebookDaily.grossProfit || 0,
+              ctr: facebookDaily.ctr || 0,
+              cpc: facebookDaily.cpc || 0,
+              roas: facebookDaily.roas || 0
+            }
+          }
+        };
+      } else {
+        // Old combined format - ensure all numbers are valid
+        revenueFunnel = {
+          leads: funnelData.leads || 0,
+          prospects: funnelData.prospects || 0,
+          qualified: funnelData.qualified || 0,
+          proposals: funnelData.proposals || 0,
+          closed: funnelData.closed || 0,
+          revenue: funnelData.revenue || 0,
+          impressions: funnelData.impressions || 0,
+          clicks: funnelData.clicks || 0,
+          adSpend: funnelData.adSpend || 0,
+          grossProfit: funnelData.grossProfit || 0
+        };
+      }
+
+      // FIX NaN ISSUE: Ensure all data has valid numbers (prevent NaN)
+      const safeguardNumbers = (obj) => {
+        const result = {};
+        for (const [key, value] of Object.entries(obj)) {
+          if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            result[key] = safeguardNumbers(value);
+          } else {
+            // Convert values to numbers safely, defaulting to 0 if invalid
+            if (typeof value === 'number' && !isNaN(value)) {
+              result[key] = value;
+            } else if (typeof value === 'string' && value.trim() !== '' && !isNaN(parseFloat(value))) {
+              result[key] = parseFloat(value);
+            } else if (typeof value === 'string' || typeof value === 'number') {
+              // If it's a string that can't be parsed or NaN number, default to 0
+              result[key] = 0;
+            } else {
+              // Keep non-numeric values as they are (like strings, booleans)
+              result[key] = value;
+            }
+          }
+        }
+        return result;
+      };
+
       const dashboardData = {
-        goals,
-        revenueFunnel,
-        vto,
-        issues,
-        scorecard,
+        goals: safeguardNumbers(goals),
+        revenueFunnel: safeguardNumbers(revenueFunnel),
+        vto: safeguardNumbers(vto),
+        issues: safeguardNumbers(issues),
+        scorecard: safeguardNumbers(scorecard),
         knowledgeBase: [
           { title: "Employee Handbook", url: "#", category: "HR" },
           { title: "Company Policies", url: "#", category: "HR" },
@@ -354,6 +459,8 @@ class DataService {
       };
 
       console.log('✅ All dashboard data fetched successfully');
+      console.log('📊 Funnel structure:', funnelData.google ? 'Separated Google/Facebook' : 'Combined format');
+      console.log('📊 Revenue funnel data:', JSON.stringify(revenueFunnel, null, 2));
       return dashboardData;
     } catch (error) {
       console.error('❌ Error fetching dashboard data:', error);
