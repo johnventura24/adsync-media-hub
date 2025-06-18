@@ -3,19 +3,34 @@ const socket = io();
 
 let funnelChart;
 
-// Format number as currency
+// FIX NaN ISSUE: Format number as currency with NaN protection
 function formatCurrency(num) {
+    // Ensure we have a valid number, default to 0 if NaN/undefined/null
+    const safeNum = (typeof num === 'number' && !isNaN(num)) ? num : 
+                   (typeof num === 'string' && !isNaN(parseFloat(num))) ? parseFloat(num) : 0;
+    
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-    }).format(num);
+    }).format(safeNum);
 }
 
-// Format number with commas
+// FIX NaN ISSUE: Format number with commas with NaN protection
 function formatNumber(num) {
-    return new Intl.NumberFormat('en-US').format(num);
+    // Ensure we have a valid number, default to 0 if NaN/undefined/null
+    const safeNum = (typeof num === 'number' && !isNaN(num)) ? num : 
+                   (typeof num === 'string' && !isNaN(parseFloat(num))) ? parseFloat(num) : 0;
+    
+    return new Intl.NumberFormat('en-US').format(safeNum);
+}
+
+// Format percentage
+function formatPercentage(num) {
+    const safeNum = (typeof num === 'number' && !isNaN(num)) ? num : 
+                   (typeof num === 'string' && !isNaN(parseFloat(num))) ? parseFloat(num) : 0;
+    return safeNum.toFixed(2) + '%';
 }
 
 // Update last updated timestamp
@@ -29,6 +44,106 @@ function updateLastUpdated(timestamp) {
         second: '2-digit'
     });
     document.getElementById('lastUpdated').textContent = formatted;
+}
+
+// NEW: Update Google Ads platform data
+function updateGoogleAdsData(googleData) {
+    const daily = googleData.daily || googleData;
+    const labels = googleData.labels || {};
+    
+    // Core metrics
+    document.getElementById('googleImpressions').textContent = formatNumber(daily.impressions);
+    document.getElementById('googleClicks').textContent = formatNumber(daily.clicks);
+    document.getElementById('googleCTR').textContent = formatPercentage(daily.ctr);
+    
+    // Financial metrics
+    document.getElementById('googleRevenue').textContent = formatCurrency(daily.revenue);
+    document.getElementById('googleAdSpend').textContent = formatCurrency(daily.adSpend);
+    document.getElementById('googleProfit').textContent = formatCurrency(daily.grossProfit);
+    
+    // Performance metrics
+    document.getElementById('googleROAS').textContent = daily.roas || '0.00';
+    document.getElementById('googleCPC').textContent = formatCurrency(daily.cpc);
+    document.getElementById('googleConvRate').textContent = formatPercentage(daily.conversionRate);
+    
+    // Status and recommendation
+    document.getElementById('googleStatus').textContent = labels.status || 'Active';
+    document.getElementById('googleRecommendation').textContent = labels.recommendation || 'Optimize';
+}
+
+// NEW: Update Facebook Ads platform data
+function updateFacebookAdsData(facebookData) {
+    const daily = facebookData.daily || facebookData;
+    const labels = facebookData.labels || {};
+    
+    // Core metrics
+    document.getElementById('facebookImpressions').textContent = formatNumber(daily.impressions);
+    document.getElementById('facebookClicks').textContent = formatNumber(daily.clicks);
+    document.getElementById('facebookCTR').textContent = formatPercentage(daily.ctr);
+    
+    // Financial metrics
+    document.getElementById('facebookRevenue').textContent = formatCurrency(daily.revenue);
+    document.getElementById('facebookAdSpend').textContent = formatCurrency(daily.adSpend);
+    document.getElementById('facebookProfit').textContent = formatCurrency(daily.grossProfit);
+    
+    // Performance metrics
+    document.getElementById('facebookROAS').textContent = daily.roas || '0.00';
+    document.getElementById('facebookCPC').textContent = formatCurrency(daily.cpc);
+    document.getElementById('facebookConvRate').textContent = formatPercentage(daily.conversionRate);
+    
+    // Status and recommendation
+    document.getElementById('facebookStatus').textContent = labels.status || 'Active';
+    document.getElementById('facebookRecommendation').textContent = labels.recommendation || 'Optimize';
+}
+
+// NEW: Update platform comparison
+function updatePlatformComparison(comparisonData) {
+    if (!comparisonData) return;
+    
+    // Winner display
+    document.getElementById('winningPlatform').textContent = comparisonData.winner || 'Google Ads';
+    
+    // Advantages
+    if (comparisonData.metrics) {
+        document.getElementById('revenueAdvantage').textContent = formatCurrency(comparisonData.metrics.revenueAdvantage);
+        document.getElementById('profitAdvantage').textContent = formatCurrency(comparisonData.metrics.profitAdvantage);
+        document.getElementById('efficiencyAdvantage').textContent = comparisonData.metrics.efficiencyAdvantage || '0.00';
+    }
+    
+    // Recommendations
+    const recommendationsList = document.getElementById('recommendationsList');
+    if (comparisonData.recommendations && Array.isArray(comparisonData.recommendations)) {
+        recommendationsList.innerHTML = '';
+        comparisonData.recommendations.forEach(rec => {
+            const li = document.createElement('li');
+            li.textContent = rec;
+            recommendationsList.appendChild(li);
+        });
+    }
+}
+
+// NEW: Update conversion rates
+function updateConversionRates(funnelData) {
+    if (funnelData.conversionRates) {
+        document.getElementById('leadToProspect').textContent = formatPercentage(funnelData.conversionRates.leadToProspect);
+        document.getElementById('prospectToQualified').textContent = formatPercentage(funnelData.conversionRates.prospectToQualified);
+        document.getElementById('qualifiedToProposal').textContent = formatPercentage(funnelData.conversionRates.qualifiedToProposal);
+        document.getElementById('proposalToClosed').textContent = formatPercentage(funnelData.conversionRates.proposalToClosed);
+    }
+}
+
+// NEW: Update extraction info
+function updateExtractionInfo(extractionInfo) {
+    if (extractionInfo && extractionInfo.nextUpdate) {
+        const nextUpdate = new Date(extractionInfo.nextUpdate);
+        const formatted = nextUpdate.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        document.getElementById('extractionTime').textContent = `Next update: ${formatted}`;
+    }
 }
 
 // Update goals section
@@ -113,6 +228,9 @@ function updateRevenueFunnel(funnel) {
     document.getElementById('closed').textContent = formatNumber(funnel.closed);
     document.getElementById('revenue').textContent = formatCurrency(funnel.revenue);
     
+    // Update conversion rates if available
+    updateConversionRates(funnel);
+    
     // Update chart
     if (funnelChart) {
         funnelChart.data.datasets[0].data = [
@@ -191,8 +309,34 @@ function updateKnowledgeBase(knowledgeBase) {
     });
 }
 
-// Update entire dashboard
+// ENHANCED: Update entire dashboard with comprehensive data
 function updateDashboard(data) {
+    console.log('🔄 Updating dashboard with comprehensive data...');
+    
+    // Update platform-specific data (NEW!)
+    if (data.google) {
+        updateGoogleAdsData(data.google);
+        console.log('✅ Google Ads data updated');
+    }
+    
+    if (data.facebook) {
+        updateFacebookAdsData(data.facebook);
+        console.log('✅ Facebook Ads data updated');
+    }
+    
+    // Update platform comparison (NEW!)
+    if (data.platformComparison) {
+        updatePlatformComparison(data.platformComparison);
+        console.log('✅ Platform comparison updated');
+    }
+    
+    // Update extraction info (NEW!)
+    if (data.extractionInfo) {
+        updateExtractionInfo(data.extractionInfo);
+        console.log('✅ Extraction info updated');
+    }
+    
+    // Update existing sections
     updateGoals(data.goals);
     updateRevenueFunnel(data.revenueFunnel);
     updateVTO(data.vto);
@@ -200,15 +344,23 @@ function updateDashboard(data) {
     updateScorecard(data.scorecard);
     updateKnowledgeBase(data.knowledgeBase);
     updateLastUpdated(data.lastUpdated);
+    
+    console.log('✅ Dashboard update complete');
 }
 
 // Socket event listeners
 socket.on('connect', () => {
-    console.log('Connected to dashboard server');
+    console.log('🔌 Connected to dashboard server');
 });
 
 socket.on('dashboardData', (data) => {
-    console.log('Received dashboard data');
+    console.log('🔄 Received comprehensive dashboard data');
+    console.log('📊 Revenue funnel data:', data.revenueFunnel);
+    console.log('🎯 Goals data:', data.goals);
+    console.log('🔍 Google data:', data.google ? 'Available' : 'Not available');
+    console.log('📘 Facebook data:', data.facebook ? 'Available' : 'Not available');
+    console.log('⚖️ Platform comparison:', data.platformComparison ? 'Available' : 'Not available');
+    
     updateDashboard(data);
     
     // Initialize funnel chart after data is loaded
@@ -218,7 +370,7 @@ socket.on('dashboardData', (data) => {
 });
 
 socket.on('dashboardUpdate', (update) => {
-    console.log('Received dashboard update:', update);
+    console.log('🔄 Received dashboard update:', update);
     
     if (update.section === 'all') {
         updateDashboard(update.data);
@@ -230,6 +382,15 @@ socket.on('dashboardUpdate', (update) => {
                 break;
             case 'revenueFunnel':
                 updateRevenueFunnel(update.data);
+                break;
+            case 'google':
+                updateGoogleAdsData(update.data);
+                break;
+            case 'facebook':
+                updateFacebookAdsData(update.data);
+                break;
+            case 'platformComparison':
+                updatePlatformComparison(update.data);
                 break;
             case 'vto':
                 updateVTO(update.data);
@@ -249,7 +410,7 @@ socket.on('dashboardUpdate', (update) => {
 });
 
 socket.on('disconnect', () => {
-    console.log('Disconnected from dashboard server');
+    console.log('🔌 Disconnected from dashboard server');
 });
 
 // Add some visual feedback for live updates
@@ -268,7 +429,7 @@ function showUpdateNotification() {
         opacity: 0;
         transition: opacity 0.3s ease;
     `;
-    notification.textContent = 'Dashboard Updated';
+    notification.textContent = 'Dashboard Updated with Fresh Data';
     
     document.body.appendChild(notification);
     
@@ -281,252 +442,25 @@ function showUpdateNotification() {
         setTimeout(() => {
             document.body.removeChild(notification);
         }, 300);
-    }, 2000);
+    }, 3000);
 }
 
-// Show notification on updates
-socket.on('dashboardUpdate', () => {
-    showUpdateNotification();
+// Show notification when data updates
+socket.on('dashboardData', () => {
+    setTimeout(showUpdateNotification, 500);
 });
 
-// Initialize dashboard when page loads
+// Initialize dashboard on page load
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Dashboard initialized');
-    initializeNewSections();
+    console.log('📊 Dashboard initialized - waiting for data...');
+    
+    // Add loading indicators
+    const loadingElements = document.querySelectorAll('#googleImpressions, #facebookImpressions, #leads, #revenue');
+    loadingElements.forEach(el => {
+        if (el.textContent === '0') {
+            el.textContent = 'Loading...';
+        }
+    });
 });
 
-// Initialize new sections functionality
-function initializeNewSections() {
-    // Get modal elements
-    const modal = document.getElementById('sectionModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalContent = document.getElementById('modalContent');
-    const closeModal = document.getElementById('closeModal');
-    const addDataBtn = document.getElementById('addDataBtn');
-
-    // Section data structure for different sections
-    const sectionData = {
-        'creative-team': {
-            title: 'Creative Team',
-            content: 'Access creative team resources, contact information, and project collaboration tools.'
-        },
-        'tech-team': {
-            title: 'Tech Team',
-            content: 'Technical documentation, development resources, and team communication channels.'
-        },
-        'sales-success': {
-            title: 'Sales & Success',
-            content: 'Sales materials, customer success resources, and performance tracking tools.'
-        },
-        'accounting-team': {
-            title: 'Accounting Team',
-            content: 'Financial reports, accounting procedures, and expense management tools.'
-        },
-        'media-team': {
-            title: 'Media Team',
-            content: 'Media assets, campaign materials, and content creation resources.'
-        },
-        'jrs-knowledge-hub': {
-            title: 'Jrs-Knowledge Hub',
-            content: 'Junior staff training materials, onboarding resources, and learning paths.'
-        },
-        'monthly-schedule': {
-            title: 'Monthly Schedule',
-            content: 'View and manage monthly schedules, important dates, and team availability.'
-        },
-        'team-updates': {
-            title: 'Team Updates',
-            content: 'Latest team announcements, company news, and important updates.'
-        },
-        'meetings': {
-            title: 'Meetings',
-            content: 'Schedule meetings, view upcoming appointments, and access meeting notes.'
-        },
-        'wiki': {
-            title: 'Wiki',
-            content: 'Company knowledge base, procedures, and shared documentation.'
-        },
-        'projects': {
-            title: 'Projects',
-            content: 'Active projects, project timelines, and collaboration tools.'
-        },
-        'team-directory': {
-            title: 'Team Directory',
-            content: 'Employee contact information, roles, and organizational structure.'
-        },
-        'values-culture': {
-            title: 'Values & Culture',
-            content: 'Company values, culture guidelines, and team building resources.'
-        },
-        'faq': {
-            title: 'FAQ',
-            content: 'Frequently asked questions and common procedures.'
-        },
-        'office-manual': {
-            title: 'Office Manual',
-            content: 'Office procedures, guidelines, and workplace policies.'
-        },
-        'vacation-policy': {
-            title: 'Vacation Policy',
-            content: 'Vacation request procedures, policy details, and time-off tracking.'
-        },
-        'benefits-policies': {
-            title: 'Benefits Policies',
-            content: 'Employee benefits information, healthcare details, and policy documents.'
-        },
-        'sops': {
-            title: 'SOPs',
-            content: 'Standard Operating Procedures for all business processes.'
-        },
-        'docs': {
-            title: 'Docs',
-            content: 'General documentation, templates, and reference materials.'
-        },
-        'ideal-client-profiles': {
-            title: 'Ideal Client Profiles',
-            content: 'Target customer profiles, persona details, and market research.'
-        },
-        'product-menu': {
-            title: 'Product Menu (Template)',
-            content: 'Product offerings, service descriptions, and pricing templates.'
-        }
-    };
-
-    // Add click event listeners to all clickable items
-    const clickableItems = document.querySelectorAll('.clickable-item');
-    clickableItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const sectionKey = item.getAttribute('data-section');
-            const section = sectionData[sectionKey];
-            
-            if (section) {
-                showSectionModal(section, sectionKey);
-            }
-        });
-    });
-
-    // Close modal functionality
-    closeModal.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    // Close modal when clicking outside
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-
-    // Add data button functionality
-    addDataBtn.addEventListener('click', () => {
-        showAddDataInterface();
-    });
-
-    // Function to show section modal
-    function showSectionModal(section, sectionKey) {
-        modalTitle.textContent = section.title;
-        modalContent.innerHTML = `
-            <div class="section-content" style="text-align: left; margin-bottom: 20px;">
-                <p>${section.content}</p>
-                <div class="section-placeholder" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 2px dashed #dee2e6; text-align: center; margin: 20px 0;">
-                    <i class="fas fa-plus-circle" style="font-size: 2rem; color: #6c757d; margin-bottom: 10px;"></i>
-                    <p style="color: #6c757d; margin: 0;">No data added yet. Click "Add Data" to get started.</p>
-                </div>
-            </div>
-            <button id="addDataBtn" class="add-data-btn" data-section="${sectionKey}">Add Data</button>
-        `;
-        
-        // Re-attach event listener to the new button
-        const newAddDataBtn = modalContent.querySelector('#addDataBtn');
-        newAddDataBtn.addEventListener('click', () => {
-            showAddDataInterface(sectionKey, section.title);
-        });
-
-        modal.style.display = 'block';
-    }
-
-    // Function to show add data interface
-    function showAddDataInterface(sectionKey, sectionTitle) {
-        modalContent.innerHTML = `
-            <div class="add-data-form">
-                <h3>Add Data to ${sectionTitle}</h3>
-                <form id="addDataForm" style="text-align: left;">
-                    <div style="margin-bottom: 15px;">
-                        <label for="dataTitle" style="display: block; margin-bottom: 5px; font-weight: 600;">Title:</label>
-                        <input type="text" id="dataTitle" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="Enter title">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="dataContent" style="display: block; margin-bottom: 5px; font-weight: 600;">Content:</label>
-                        <textarea id="dataContent" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: vertical;" placeholder="Enter content or description"></textarea>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="dataUrl" style="display: block; margin-bottom: 5px; font-weight: 600;">URL (optional):</label>
-                        <input type="url" id="dataUrl" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="https://">
-                    </div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button type="submit" class="add-data-btn" style="margin-right: 10px;">Save Data</button>
-                        <button type="button" id="cancelAdd" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        `;
-
-        // Handle form submission
-        const form = modalContent.querySelector('#addDataForm');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const title = document.getElementById('dataTitle').value.trim();
-            const content = document.getElementById('dataContent').value.trim();
-            const url = document.getElementById('dataUrl').value.trim();
-
-            if (!title || !content) {
-                alert('Please fill in both title and content fields.');
-                return;
-            }
-
-            // Here you would typically send the data to your server
-            // For now, we'll just show a success message
-            showSuccessMessage(sectionTitle, title);
-            
-            // Close modal after a short delay
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 2000);
-        });
-
-        // Handle cancel button
-        const cancelBtn = modalContent.querySelector('#cancelAdd');
-        cancelBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    }
-
-    // Function to show success message
-    function showSuccessMessage(sectionTitle, dataTitle) {
-        modalContent.innerHTML = `
-            <div style="text-align: center;">
-                <i class="fas fa-check-circle" style="font-size: 3rem; color: #27ae60; margin-bottom: 15px;"></i>
-                <h3 style="color: #27ae60; margin-bottom: 10px;">Success!</h3>
-                <p>Your data "${dataTitle}" has been added to ${sectionTitle}.</p>
-                <p style="color: #6c757d; font-size: 0.9rem;">The modal will close automatically in a moment.</p>
-            </div>
-        `;
-    }
-}
-
-// Add some hover effects and interactions
-document.addEventListener('DOMContentLoaded', () => {
-    // Add ripple effect to clickable items
-    const clickableItems = document.querySelectorAll('.clickable-item');
-    clickableItems.forEach(item => {
-        item.addEventListener('mouseenter', () => {
-            item.style.transform = 'translateY(-3px) scale(1.02)';
-        });
-        
-        item.addEventListener('mouseleave', () => {
-            item.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-}); 
+console.log('📊 Comprehensive Dashboard JavaScript loaded successfully!'); 

@@ -6,6 +6,8 @@ const path = require('path');
 const fs = require('fs');
 const cron = require('node-cron');
 const dataService = require('./data-service');
+const tableauAutoExtractor = require('./tableau-auto-extractor');
+const dailyDataTracker = require('./daily-data-tracker');
 require('dotenv').config();
 
 const app = express();
@@ -407,5 +409,247 @@ if (enableAutoRefresh) {
 } else {
   console.log('⏸️ Automatic data refresh is disabled');
 }
+
+// DAILY DATA REFRESH SCHEDULER
+const cron = require('node-cron');
+
+// Schedule daily data refresh at 8:00 AM every day
+cron.schedule('0 8 * * *', async () => {
+    console.log('🕐 Daily data refresh started at 8:00 AM');
+    await performDailyDataRefresh();
+}, {
+    scheduled: true,
+    timezone: "America/New_York" // Adjust timezone as needed
+});
+
+// Also refresh data every 6 hours for more frequent updates
+cron.schedule('0 */6 * * *', async () => {
+    console.log('🔄 6-hour data refresh started');
+    await performDailyDataRefresh();
+}, {
+    scheduled: true,
+    timezone: "America/New_York"
+});
+
+// Function to perform comprehensive data refresh
+async function performDailyDataRefresh() {
+    try {
+        console.log('🔄 Starting comprehensive data refresh...');
+        
+        // Get fresh data from Tableau
+        const freshTableauData = await tableauAutoExtractor.getFreshData();
+        console.log('✅ Fresh Tableau data retrieved');
+        
+        // Extract Google and Facebook data separately
+        let googleData = null;
+        let facebookData = null;
+        
+        if (freshTableauData.google) {
+            googleData = freshTableauData.google;
+            console.log('📊 Google Ads data extracted');
+        }
+        
+        if (freshTableauData.facebook) {
+            facebookData = freshTableauData.facebook;
+            console.log('📘 Facebook Ads data extracted');
+        }
+        
+        // Save daily tracking data (separate platforms)
+        if (googleData && facebookData) {
+            await dailyDataTracker.saveDailyData(googleData.daily, facebookData.daily);
+            console.log('💾 Daily tracking data saved');
+        }
+        
+        // Get complete dashboard data
+        const dashboardData = await dataService.getAllDashboardData();
+        console.log('📊 Complete dashboard data assembled');
+        
+        // Broadcast updated data to all connected clients
+        io.emit('dashboardUpdate', {
+            section: 'all',
+            data: dashboardData,
+            timestamp: new Date().toISOString(),
+            updateType: 'daily_refresh'
+        });
+        
+        console.log('✅ Daily data refresh completed and broadcasted to clients');
+        
+        // Log refresh summary
+        logRefreshSummary(dashboardData);
+        
+    } catch (error) {
+        console.error('❌ Error during daily data refresh:', error);
+        
+        // Broadcast error notification to clients
+        io.emit('dashboardError', {
+            message: 'Data refresh failed',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+// Log refresh summary
+function logRefreshSummary(data) {
+    console.log('\n📋 DAILY REFRESH SUMMARY');
+    console.log('========================');
+    
+    if (data.google) {
+        console.log('🔍 Google Ads:');
+        console.log(`   Revenue: $${data.google.daily?.revenue || 0}`);
+        console.log(`   Impressions: ${data.google.daily?.impressions || 0}`);
+        console.log(`   ROAS: ${data.google.daily?.roas || 0}`);
+    }
+    
+    if (data.facebook) {
+        console.log('📘 Facebook Ads:');
+        console.log(`   Revenue: $${data.facebook.daily?.revenue || 0}`);
+        console.log(`   Impressions: ${data.facebook.daily?.impressions || 0}`);
+        console.log(`   ROAS: ${data.facebook.daily?.roas || 0}`);
+    }
+    
+    if (data.revenueFunnel) {
+        console.log('📊 Revenue Funnel:');
+        console.log(`   Total Leads: ${data.revenueFunnel.leads || 0}`);
+        console.log(`   Total Revenue: $${data.revenueFunnel.revenue || 0}`);
+    }
+    
+    if (data.platformComparison) {
+        console.log('⚖️ Platform Winner: ' + (data.platformComparison.winner || 'Unknown'));
+    }
+    
+    console.log('========================\n');
+}
+
+// Socket.io connection handling
+io.on('connection', async (socket) => {
+    console.log('🔌 New client connected:', socket.id);
+
+    try {
+        // Send initial dashboard data
+        const dashboardData = await dataService.getAllDashboardData();
+        socket.emit('dashboardData', dashboardData);
+        console.log('📊 Initial data sent to client:', socket.id);
+    } catch (error) {
+        console.error('❌ Error sending initial data:', error);
+        socket.emit('dashboardError', {
+            message: 'Failed to load initial data',
+            error: error.message
+        });
+    }
+
+    // Handle client disconnect
+    socket.on('disconnect', () => {
+        console.log('🔌 Client disconnected:', socket.id);
+    });
+    
+    // Handle manual refresh request
+    socket.on('requestRefresh', async () => {
+        console.log('🔄 Manual refresh requested by client:', socket.id);
+        await performDailyDataRefresh();
+    });
+});
+
+// API endpoint for manual data refresh
+app.get('/api/refresh', async (req, res) => {
+    try {
+        console.log('🔄 Manual refresh triggered via API');
+        await performDailyDataRefresh();
+        res.json({ 
+            success: true, 
+            message: 'Data refresh completed successfully',
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('❌ API refresh error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Data refresh failed',
+            error: error.message 
+        });
+    }
+});
+
+// API endpoint to get current data status
+app.get('/api/status', async (req, res) => {
+    try {
+        const dashboardData = await dataService.getAllDashboardData();
+        res.json({
+            success: true,
+            lastUpdated: dashboardData.lastUpdated,
+            extractionInfo: dashboardData.extractionInfo,
+            platforms: {
+                google: dashboardData.google ? 'active' : 'inactive',
+                facebook: dashboardData.facebook ? 'active' : 'inactive'
+            },
+            dataPoints: {
+                totalLeads: dashboardData.revenueFunnel?.leads || 0,
+                totalRevenue: dashboardData.revenueFunnel?.revenue || 0,
+                platformWinner: dashboardData.platformComparison?.winner || 'unknown'
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        service: 'Adsync Media Hub Dashboard'
+    });
+});
+
+// Start server
+server.listen(PORT, () => {
+    console.log('🚀 Adsync Media Hub Dashboard Server Started');
+    console.log('============================================');
+    console.log(`📊 Server running on port ${PORT}`);
+    console.log(`🌐 Dashboard URL: http://localhost:${PORT}`);
+    console.log('⏰ Daily refresh scheduled for 8:00 AM');
+    console.log('🔄 6-hour refresh cycle active');
+    console.log('============================================');
+    
+    // Perform initial data refresh on startup
+    setTimeout(async () => {
+        console.log('🔄 Performing initial data refresh...');
+        await performDailyDataRefresh();
+    }, 5000); // Wait 5 seconds after startup
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    console.log('\n🛑 Shutting down server gracefully...');
+    
+    // Close data service connections
+    try {
+        await dataService.closeConnections();
+        console.log('✅ Data service connections closed');
+    } catch (error) {
+        console.error('❌ Error closing data service connections:', error);
+    }
+    
+    // Close server
+    server.close(() => {
+        console.log('✅ Server closed successfully');
+        process.exit(0);
+    });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
+});
 
 initializeApp(); 
