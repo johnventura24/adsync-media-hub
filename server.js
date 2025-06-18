@@ -411,7 +411,6 @@ if (enableAutoRefresh) {
 }
 
 // DAILY DATA REFRESH SCHEDULER
-const cron = require('node-cron');
 
 // Schedule daily data refresh at 8:00 AM every day
 cron.schedule('0 8 * * *', async () => {
