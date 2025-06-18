@@ -604,23 +604,6 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Start server
-server.listen(PORT, () => {
-    console.log('🚀 Adsync Media Hub Dashboard Server Started');
-    console.log('============================================');
-    console.log(`📊 Server running on port ${PORT}`);
-    console.log(`🌐 Dashboard URL: http://localhost:${PORT}`);
-    console.log('⏰ Daily refresh scheduled for 8:00 AM');
-    console.log('🔄 6-hour refresh cycle active');
-    console.log('============================================');
-    
-    // Perform initial data refresh on startup
-    setTimeout(async () => {
-        console.log('🔄 Performing initial data refresh...');
-        await performDailyDataRefresh();
-    }, 5000); // Wait 5 seconds after startup
-});
-
 // Graceful shutdown
 process.on('SIGINT', async () => {
     console.log('\n🛑 Shutting down server gracefully...');
