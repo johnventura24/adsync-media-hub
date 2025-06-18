@@ -4,7 +4,7 @@ const mysql = require('mysql2/promise');
 const { MongoClient } = require('mongodb');
 const csv = require('csv-parser');
 const fs = require('fs');
-const tableauIntegration = require('./tableau-integration');
+const tableauAutoExtractor = require('./tableau-auto-extractor');
 require('dotenv').config();
 
 class DataService {
@@ -103,15 +103,15 @@ class DataService {
       }
     }
     
-    // Try Tableau integration second (your specific dashboard)
+    // Try Tableau Auto Extractor second (your specific dashboard)
     try {
-      const tableauData = await tableauIntegration.getFunnelData();
+      const tableauData = await tableauAutoExtractor.getFreshData();
       if (tableauData) {
-        console.log('✅ Funnel data fetched from Tableau');
+        console.log('✅ Comprehensive funnel data fetched from Tableau Auto Extractor');
         return tableauData;
       }
     } catch (error) {
-      console.log('⚠️ Tableau fetch failed, trying other sources:', error.message);
+      console.log('⚠️ Tableau Auto Extractor fetch failed, trying other sources:', error.message);
     }
     
     // Try API third
@@ -323,16 +323,38 @@ class DataService {
         this.getScorecardData()
       ]);
 
-      // Handle both old format (combined) and new format (separated Google/Facebook)
-      let revenueFunnel;
+      // Handle comprehensive data structure from tableau-auto-extractor
+      let revenueFunnel, google, facebook, platformComparison, extractionInfo;
+      
       if (funnelData.google && funnelData.facebook) {
-        // New separated format - convert to frontend-compatible format
+        // Comprehensive data structure from tableau-auto-extractor
         const googleDaily = funnelData.google.daily || funnelData.google;
         const facebookDaily = funnelData.facebook.daily || funnelData.facebook;
         
-        // Create combined metrics for the main funnel display (frontend compatibility)
-        revenueFunnel = {
-          // Main funnel metrics (for frontend compatibility)
+        // Store separated platform data for dashboard
+        google = {
+          daily: googleDaily,
+          labels: funnelData.google.labels || {}
+        };
+        
+        facebook = {
+          daily: facebookDaily,
+          labels: funnelData.facebook.labels || {}
+        };
+        
+        // Store platform comparison data
+        platformComparison = funnelData.platformComparison || {};
+        
+        // Store extraction info with proper last updated date
+        extractionInfo = funnelData.extractionInfo || {
+          method: 'comprehensive_data_extraction',
+          lastUpdated: funnelData.lastUpdated || new Date().toISOString(),
+          extractionDate: funnelData.extractionDate || new Date().toISOString().split('T')[0],
+          source: 'tableau_auto_extractor'
+        };
+        
+        // Create combined metrics for the main funnel display (using revenueFunnel from comprehensive data)
+        revenueFunnel = funnelData.revenueFunnel || {
           leads: (googleDaily.leads || 0) + (facebookDaily.leads || 0),
           prospects: (googleDaily.prospects || 0) + (facebookDaily.prospects || 0),
           qualified: (googleDaily.qualified || 0) + (facebookDaily.qualified || 0),
@@ -340,32 +362,11 @@ class DataService {
           closed: (googleDaily.closed || 0) + (facebookDaily.closed || 0),
           revenue: (googleDaily.revenue || 0) + (facebookDaily.revenue || 0),
           
-          // Separated platform data (for detailed analysis)
-          platforms: {
-            google: {
-              impressions: googleDaily.impressions || 0,
-              clicks: googleDaily.clicks || 0,
-              leads: googleDaily.leads || 0,
-              revenue: googleDaily.revenue || 0,
-              adSpend: googleDaily.adSpend || 0,
-              grossProfit: googleDaily.grossProfit || 0,
-              ctr: googleDaily.ctr || 0,
-              cpc: googleDaily.cpc || 0,
-              roas: googleDaily.roas || 0
-            },
-            facebook: {
-              impressions: facebookDaily.impressions || 0,
-              clicks: facebookDaily.clicks || 0,
-              leads: facebookDaily.leads || 0,
-              revenue: facebookDaily.revenue || 0,
-              adSpend: facebookDaily.adSpend || 0,
-              grossProfit: facebookDaily.grossProfit || 0,
-              ctr: facebookDaily.ctr || 0,
-              cpc: facebookDaily.cpc || 0,
-              roas: facebookDaily.roas || 0
-            }
-          }
+          // Include labels and conversion rates if available
+          labels: funnelData.revenueFunnel?.labels || {},
+          conversionRates: funnelData.revenueFunnel?.conversionRates || {}
         };
+        
       } else {
         // Old combined format - ensure all numbers are valid
         revenueFunnel = {
@@ -379,6 +380,14 @@ class DataService {
           clicks: funnelData.clicks || 0,
           adSpend: funnelData.adSpend || 0,
           grossProfit: funnelData.grossProfit || 0
+        };
+        
+        // Set default extraction info for old format
+        extractionInfo = {
+          method: 'basic_data_extraction',
+          lastUpdated: new Date().toISOString(),
+          extractionDate: new Date().toISOString().split('T')[0],
+          source: 'fallback_data'
         };
       }
 
@@ -412,6 +421,18 @@ class DataService {
         vto: safeguardNumbers(vto),
         issues: safeguardNumbers(issues),
         scorecard: safeguardNumbers(scorecard),
+        
+        // Include separated platform data if available
+        ...(google && { google: safeguardNumbers(google) }),
+        ...(facebook && { facebook: safeguardNumbers(facebook) }),
+        ...(platformComparison && { platformComparison: safeguardNumbers(platformComparison) }),
+        
+        // Include data labels if available from comprehensive data
+        ...(funnelData.dataLabels && { dataLabels: funnelData.dataLabels }),
+        
+        // Include extraction info with proper timestamps
+        extractionInfo: extractionInfo,
+        
         knowledgeBase: [
           { title: "Employee Handbook", url: "#", category: "HR" },
           { title: "Company Policies", url: "#", category: "HR" },
@@ -455,12 +476,20 @@ class DataService {
           'ideal-client-profiles': { title: 'Ideal Client Profiles', data: [], icon: 'fas fa-user-tie' },
           'product-menu': { title: 'Product Menu (Template)', data: [], icon: 'fas fa-list-alt' }
         },
-        lastUpdated: new Date().toISOString()
+        
+        // Use extraction date as lastUpdated for proper timestamp display
+        lastUpdated: extractionInfo.lastUpdated || new Date().toISOString()
       };
 
       console.log('✅ All dashboard data fetched successfully');
-      console.log('📊 Funnel structure:', funnelData.google ? 'Separated Google/Facebook' : 'Combined format');
-      console.log('📊 Revenue funnel data:', JSON.stringify(revenueFunnel, null, 2));
+      console.log('📊 Data structure:', funnelData.google ? 'Comprehensive Google/Facebook data' : 'Basic combined format');
+      console.log('📅 Data extraction date:', extractionInfo.extractionDate);
+      console.log('🕐 Last updated:', extractionInfo.lastUpdated);
+      console.log('📊 Revenue funnel totals - Leads:', revenueFunnel.leads, 'Revenue: $' + revenueFunnel.revenue);
+      if (google && facebook) {
+        console.log('🔍 Google Ads - Revenue: $' + google.daily.revenue + ', Impressions:', google.daily.impressions);
+        console.log('📘 Facebook Ads - Revenue: $' + facebook.daily.revenue + ', Impressions:', facebook.daily.impressions);
+      }
       return dashboardData;
     } catch (error) {
       console.error('❌ Error fetching dashboard data:', error);

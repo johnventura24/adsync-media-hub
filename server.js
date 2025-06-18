@@ -459,9 +459,9 @@ async function performDailyDataRefresh() {
             console.log('💾 Daily tracking data saved');
         }
         
-        // Get complete dashboard data
+        // Get complete dashboard data (this will now include the fresh Tableau data)
         const dashboardData = await dataService.getAllDashboardData();
-        console.log('📊 Complete dashboard data assembled');
+        console.log('📊 Complete dashboard data assembled with fresh Tableau data');
         
         // Broadcast updated data to all connected clients
         io.emit('dashboardUpdate', {
