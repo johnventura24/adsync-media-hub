@@ -1,0 +1,452 @@
+[
+  {
+    "id": "issues_1752528390937_0",
+    "title": "we have clients refusing to give us dupe suppression lists but also refusing to pay for any duplicate calls. we need to take PX's route here or create suppression lists ourselves.",
+    "description": "",
+    "owner": "Justin Scribner",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.940Z",
+    "updated_date": "2025-07-14T21:26:30.940Z"
+  },
+  {
+    "id": "issues_1752528390937_1",
+    "title": "do we have written down what lander process is here? We should get this mapped out in writing",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752528390937_2",
+    "title": "What to do with transfer agents with sabal ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752528390937_3",
+    "title": "Get Flex Card cap back ",
+    "description": "Start with Rubicon/medicarepronto - cap for internal testing accounts, that goes to their hosted pages, and traffic will be on FB (cause gugulu no likey redirect - althoooough... we could run presells like all other weightloss/viagra BS offers do) - I actually do WANT to test that. Shady Clickbank affs can do it, why can't we?\n",
+    "owner": "Alexandra Bubela",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752528390937_4",
+    "title": "70-80% of our targets are not premium targets",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752528390937_5",
+    "title": "Figure out which elements from the AEP roll out caused the compromised site issue",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752528390937_6",
+    "title": "Document External Lander Designer Process",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752528390937_7",
+    "title": "We need to revamp our testing process in general ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752528390937_8",
+    "title": "Call Ops needs to catch 100% cvr issues with buyers faster so we dont end up with billing issues",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:26:30.941Z",
+    "updated_date": "2025-07-14T21:26:30.941Z"
+  },
+  {
+    "id": "issues_1752529447424_0",
+    "title": "we have clients refusing to give us dupe suppression lists but also refusing to pay for any duplicate calls. we need to take PX's route here or create suppression lists ourselves.",
+    "description": "",
+    "owner": "Justin Scribner",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_1",
+    "title": "do we have written down what lander process is here? We should get this mapped out in writing",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_2",
+    "title": "What to do with transfer agents with sabal ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_3",
+    "title": "Get Flex Card cap back ",
+    "description": "Start with Rubicon/medicarepronto - cap for internal testing accounts, that goes to their hosted pages, and traffic will be on FB (cause gugulu no likey redirect - althoooough... we could run presells like all other weightloss/viagra BS offers do) - I actually do WANT to test that. Shady Clickbank affs can do it, why can't we?\n",
+    "owner": "Alexandra Bubela",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_4",
+    "title": "70-80% of our targets are not premium targets",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_5",
+    "title": "Figure out which elements from the AEP roll out caused the compromised site issue",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_6",
+    "title": "Document External Lander Designer Process",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_7",
+    "title": "We need to revamp our testing process in general ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752529447424_8",
+    "title": "Call Ops needs to catch 100% cvr issues with buyers faster so we dont end up with billing issues",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:44:07.426Z",
+    "updated_date": "2025-07-14T21:44:07.426Z"
+  },
+  {
+    "id": "issues_1752530019749_0",
+    "title": "we have clients refusing to give us dupe suppression lists but also refusing to pay for any duplicate calls. we need to take PX's route here or create suppression lists ourselves.",
+    "description": "",
+    "owner": "Justin Scribner",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_1",
+    "title": "do we have written down what lander process is here? We should get this mapped out in writing",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_2",
+    "title": "What to do with transfer agents with sabal ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_3",
+    "title": "Get Flex Card cap back ",
+    "description": "Start with Rubicon/medicarepronto - cap for internal testing accounts, that goes to their hosted pages, and traffic will be on FB (cause gugulu no likey redirect - althoooough... we could run presells like all other weightloss/viagra BS offers do) - I actually do WANT to test that. Shady Clickbank affs can do it, why can't we?\n",
+    "owner": "Alexandra Bubela",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_4",
+    "title": "70-80% of our targets are not premium targets",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_5",
+    "title": "Figure out which elements from the AEP roll out caused the compromised site issue",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_6",
+    "title": "Document External Lander Designer Process",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_7",
+    "title": "We need to revamp our testing process in general ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752530019749_8",
+    "title": "Call Ops needs to catch 100% cvr issues with buyers faster so we dont end up with billing issues",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T21:53:39.751Z",
+    "updated_date": "2025-07-14T21:53:39.751Z"
+  },
+  {
+    "id": "issues_1752531524612_0",
+    "title": "we have clients refusing to give us dupe suppression lists but also refusing to pay for any duplicate calls. we need to take PX's route here or create suppression lists ourselves.",
+    "description": "",
+    "owner": "Justin Scribner",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_1",
+    "title": "do we have written down what lander process is here? We should get this mapped out in writing",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_2",
+    "title": "What to do with transfer agents with sabal ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_3",
+    "title": "Get Flex Card cap back ",
+    "description": "Start with Rubicon/medicarepronto - cap for internal testing accounts, that goes to their hosted pages, and traffic will be on FB (cause gugulu no likey redirect - althoooough... we could run presells like all other weightloss/viagra BS offers do) - I actually do WANT to test that. Shady Clickbank affs can do it, why can't we?\n",
+    "owner": "Alexandra Bubela",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_4",
+    "title": "70-80% of our targets are not premium targets",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_5",
+    "title": "Figure out which elements from the AEP roll out caused the compromised site issue",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_6",
+    "title": "Document External Lander Designer Process",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_7",
+    "title": "We need to revamp our testing process in general ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531524612_8",
+    "title": "Call Ops needs to catch 100% cvr issues with buyers faster so we dont end up with billing issues",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:18:44.616Z",
+    "updated_date": "2025-07-14T22:18:44.616Z"
+  },
+  {
+    "id": "issues_1752531776784_0",
+    "title": "we have clients refusing to give us dupe suppression lists but also refusing to pay for any duplicate calls. we need to take PX's route here or create suppression lists ourselves.",
+    "description": "",
+    "owner": "Justin Scribner",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_1",
+    "title": "do we have written down what lander process is here? We should get this mapped out in writing",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_2",
+    "title": "What to do with transfer agents with sabal ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_3",
+    "title": "Get Flex Card cap back ",
+    "description": "Start with Rubicon/medicarepronto - cap for internal testing accounts, that goes to their hosted pages, and traffic will be on FB (cause gugulu no likey redirect - althoooough... we could run presells like all other weightloss/viagra BS offers do) - I actually do WANT to test that. Shady Clickbank affs can do it, why can't we?\n",
+    "owner": "Alexandra Bubela",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_4",
+    "title": "70-80% of our targets are not premium targets",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_5",
+    "title": "Figure out which elements from the AEP roll out caused the compromised site issue",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_6",
+    "title": "Document External Lander Designer Process",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_7",
+    "title": "We need to revamp our testing process in general ",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  },
+  {
+    "id": "issues_1752531776784_8",
+    "title": "Call Ops needs to catch 100% cvr issues with buyers faster so we dont end up with billing issues",
+    "description": "",
+    "owner": "John Ventura",
+    "status": "Open",
+    "priority": "Medium",
+    "created_date": "2025-07-14T22:22:56.786Z",
+    "updated_date": "2025-07-14T22:22:56.786Z"
+  }
+]
