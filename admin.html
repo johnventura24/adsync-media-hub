@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adsync Media Hub - Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .form-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-section h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"], input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Adsync Media Hub - Admin Panel</h1>
+    <p>Use this page to update your Adsync Media Hub dashboard data in real-time.</p>
+
+    <!-- Goals Section -->
+    <div class="form-section">
+        <h2>📈 Goals</h2>
+        <div class="form-group">
+            <label for="quarterlyTarget">Quarterly Target ($)</label>
+            <input type="number" id="quarterlyTarget" placeholder="1000000">
+        </div>
+        <div class="form-group">
+            <label for="quarterlyCurrent">Quarterly Current ($)</label>
+            <input type="number" id="quarterlyCurrent" placeholder="750000">
+        </div>
+        <div class="form-group">
+            <label for="monthlyTarget">Monthly Target ($)</label>
+            <input type="number" id="monthlyTarget" placeholder="333333">
+        </div>
+        <div class="form-group">
+            <label for="monthlyCurrent">Monthly Current ($)</label>
+            <input type="number" id="monthlyCurrent" placeholder="280000">
+        </div>
+        <button onclick="updateGoals()">Update Goals</button>
+    </div>
+
+    <!-- Revenue Funnel Section -->
+    <div class="form-section">
+        <h2>🔄 Revenue Funnel</h2>
+        <div class="form-group">
+            <label for="leads">Leads</label>
+            <input type="number" id="leads" placeholder="1250">
+        </div>
+        <div class="form-group">
+            <label for="prospects">Prospects</label>
+            <input type="number" id="prospects" placeholder="875">
+        </div>
+        <div class="form-group">
+            <label for="qualified">Qualified</label>
+            <input type="number" id="qualified" placeholder="425">
+        </div>
+        <div class="form-group">
+            <label for="proposals">Proposals</label>
+            <input type="number" id="proposals" placeholder="180">
+        </div>
+        <div class="form-group">
+            <label for="closed">Closed Deals</label>
+            <input type="number" id="closed" placeholder="85">
+        </div>
+        <div class="form-group">
+            <label for="revenue">Total Revenue ($)</label>
+            <input type="number" id="revenue" placeholder="750000">
+        </div>
+        <button onclick="updateFunnel()">Update Revenue Funnel</button>
+    </div>
+
+    <!-- VTO Section -->
+    <div class="form-section">
+        <h2>🏖️ VTO Tracking</h2>
+        <div class="form-group">
+            <label for="vtoAvailable">Available VTO Hours</label>
+            <input type="number" id="vtoAvailable" placeholder="240">
+        </div>
+        <div class="form-group">
+            <label for="vtoUsed">Used VTO Hours</label>
+            <input type="number" id="vtoUsed" placeholder="165">
+        </div>
+        <div class="form-group">
+            <label for="vtoPending">Pending VTO Hours</label>
+            <input type="number" id="vtoPending" placeholder="25">
+        </div>
+        <div class="form-group">
+            <label for="vtoRemaining">Remaining VTO Hours</label>
+            <input type="number" id="vtoRemaining" placeholder="75">
+        </div>
+        <button onclick="updateVTO()">Update VTO</button>
+    </div>
+
+    <!-- Issues Section -->
+    <div class="form-section">
+        <h2>⚠️ Issues</h2>
+        <div class="form-group">
+            <label for="criticalIssues">Critical Issues</label>
+            <input type="number" id="criticalIssues" placeholder="3">
+        </div>
+        <div class="form-group">
+            <label for="highIssues">High Priority Issues</label>
+            <input type="number" id="highIssues" placeholder="12">
+        </div>
+        <div class="form-group">
+            <label for="mediumIssues">Medium Priority Issues</label>
+            <input type="number" id="mediumIssues" placeholder="28">
+        </div>
+        <div class="form-group">
+            <label for="lowIssues">Low Priority Issues</label>
+            <input type="number" id="lowIssues" placeholder="45">
+        </div>
+        <button onclick="updateIssues()">Update Issues</button>
+    </div>
+
+    <!-- Scorecard Section -->
+    <div class="form-section">
+        <h2>📊 Scorecard</h2>
+        <div class="form-group">
+            <label for="customerSatisfaction">Customer Satisfaction (%)</label>
+            <input type="number" id="customerSatisfaction" placeholder="92" min="0" max="100">
+        </div>
+        <div class="form-group">
+            <label for="teamEfficiency">Team Efficiency (%)</label>
+            <input type="number" id="teamEfficiency" placeholder="88" min="0" max="100">
+        </div>
+        <div class="form-group">
+            <label for="goalCompletion">Goal Completion (%)</label>
+            <input type="number" id="goalCompletion" placeholder="75" min="0" max="100">
+        </div>
+        <div class="form-group">
+            <label for="qualityScore">Quality Score (%)</label>
+            <input type="number" id="qualityScore" placeholder="94" min="0" max="100">
+        </div>
+        <button onclick="updateScorecard()">Update Scorecard</button>
+    </div>
+
+    <div class="form-section">
+        <button onclick="window.open('/', '_blank')" style="background: #27ae60;">
+            🔗 View Dashboard
+        </button>
+        <button onclick="loadCurrentData()" style="background: #f39c12;">
+            🔄 Load Current Data
+        </button>
+    </div>
+
+    <!-- Ninety.io Data Management Section -->
+    <div class="form-section">
+        <h2>🎯 Ninety.io Data Management</h2>
+        <p>Upload and manage your Ninety.io data exports: To-Do's, Rocks, Issues & Data.</p>
+        
+        <div class="form-group">
+            <label for="ninetyDataType">Select Data Type</label>
+            <select id="ninetyDataType">
+                <option value="todos">To-Do's</option>
+                <option value="rocks">Rocks</option>
+                <option value="issues">Issues</option>
+                <option value="data">Data</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="ninetyDataFile">Upload Ninety.io Export File</label>
+            <input type="file" id="ninetyDataFile" accept=".pdf,.xlsx,.xls,.csv" required>
+            <small>Supported formats: PDF, Excel (.xlsx, .xls), CSV - Maximum 10MB</small>
+        </div>
+        
+        <div class="form-group">
+            <button onclick="uploadNinetyData()">Upload & Process</button>
+            <button onclick="viewNinetyData()">View Data</button>
+            <button onclick="clearNinetyData()">Clear All Data</button>
+        </div>
+        
+        <div id="ninetyUploadProgress" style="display: none;">
+            <div style="background: #f0f0f0; border-radius: 5px; padding: 10px; margin: 10px 0;">
+                <div style="color: #666;">Processing Ninety.io file... Please wait.</div>
+                <div style="background: #667eea; height: 4px; border-radius: 2px; margin-top: 5px; animation: pulse 1.5s infinite;"></div>
+            </div>
+        </div>
+        
+        <div id="ninetyUploadResults" style="display: none;">
+            <h4>Upload Results</h4>
+            <div id="ninetyUploadResultsContent"></div>
+        </div>
+    </div>
+
+    <!-- Ninety.io Data Viewer Section -->
+    <div class="form-section">
+        <h2>📋 View Ninety.io Data</h2>
+        <p>Browse and manage your uploaded Ninety.io data.</p>
+        
+        <div class="form-group">
+            <button onclick="loadTodos()">📝 View To-Do's</button>
+            <button onclick="loadRocks()">🪨 View Rocks</button>
+            <button onclick="loadIssues()">⚠️ View Issues</button>
+            <button onclick="loadData()">📊 View Data</button>
+        </div>
+        
+        <!-- To-Do's Section -->
+        <div id="todosSection" style="display: none;">
+            <h3>📝 To-Do's</h3>
+            <div id="todosData">
+                <p>Loading To-Do's...</p>
+            </div>
+        </div>
+        
+        <!-- Rocks Section -->
+        <div id="rocksSection" style="display: none;">
+            <h3>🪨 Rocks</h3>
+            <div id="rocksData">
+                <p>Loading Rocks...</p>
+            </div>
+        </div>
+        
+        <!-- Issues Section -->
+        <div id="issuesSection" style="display: none;">
+            <h3>⚠️ Issues</h3>
+            <div id="issuesData">
+                <p>Loading Issues...</p>
+            </div>
+        </div>
+        
+        <!-- Data Section -->
+        <div id="dataSection" style="display: none;">
+            <h3>📊 Data</h3>
+            <div id="dataData">
+                <p>Loading Data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Upload Section -->
+    <div class="form-section">
+        <h2>📁 Data Upload & Processing</h2>
+        <p>Upload your PDF, Excel, or CSV files to import data into the system.</p>
+        
+        <div class="form-group">
+            <label for="dataType">Data Type</label>
+            <select id="dataType">
+                <option value="leadership">Leadership Team Data</option>
+                <option value="funnel">Revenue Funnel Data</option>
+                <option value="goals">Goals & Targets Data</option>
+                <option value="general">General Data</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="dataFile">Select File (PDF, Excel, CSV)</label>
+            <input type="file" id="dataFile" accept=".pdf,.xlsx,.xls,.csv" required>
+            <small>Maximum file size: 10MB. Supported formats: PDF, Excel (.xlsx, .xls), CSV</small>
+        </div>
+        
+        <div class="form-group">
+            <button onclick="uploadDataFile()">Upload & Process</button>
+            <button onclick="downloadTemplate()">Download Template</button>
+            <button onclick="viewUploadHistory()">View Upload History</button>
+        </div>
+        
+        <div id="uploadProgress" style="display: none;">
+            <div style="background: #f0f0f0; border-radius: 5px; padding: 10px; margin: 10px 0;">
+                <div style="color: #666;">Processing file... Please wait.</div>
+                <div style="background: #667eea; height: 4px; border-radius: 2px; margin-top: 5px; animation: pulse 1.5s infinite;"></div>
+            </div>
+        </div>
+        
+        <div id="uploadResults" style="display: none;">
+            <h4>Upload Results</h4>
+            <div id="uploadResultsContent"></div>
+        </div>
+        
+        <!-- Upload History -->
+        <div id="uploadHistorySection" style="display: none;">
+            <h3>Upload History</h3>
+            <div id="uploadHistoryContent">
+                <p>Loading upload history...</p>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="messages"></div>
+
+    <script>
+        // Add styles for select elements and leadership team
+        const selectStyle = document.createElement('style');
+        selectStyle.textContent = `
+            select, textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+            .ninety-item {
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 15px;
+                margin: 10px 0;
+            }
+            .ninety-item h4 {
+                margin: 0 0 10px 0;
+                color: #333;
+            }
+            .ninety-item p {
+                margin: 5px 0;
+                color: #666;
+            }
+            .ninety-actions {
+                margin-top: 10px;
+            }
+            .ninety-actions button {
+                margin-right: 10px;
+                padding: 5px 10px;
+                font-size: 14px;
+            }
+            .edit-btn {
+                background: #ffc107;
+                color: #212529;
+            }
+            .edit-btn:hover {
+                background: #e0a800;
+            }
+            .delete-btn {
+                background: #dc3545;
+            }
+            .delete-btn:hover {
+                background: #c82333;
+            }
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+            input[type="file"] {
+                width: 100%;
+                padding: 10px;
+                border: 2px dashed #ddd;
+                border-radius: 5px;
+                background: #f9f9f9;
+                cursor: pointer;
+            }
+            input[type="file"]:hover {
+                border-color: #667eea;
+                background: #f0f0ff;
+            }
+        `;
+        document.head.appendChild(selectStyle);
+
+        // ===== NINETY.IO DATA MANAGEMENT FUNCTIONS =====
+        let currentNinetyData = {
+            todos: [],
+            rocks: [],
+            issues: [],
+            data: []
+        };
+
+        async function uploadNinetyData() {
+            const fileInput = document.getElementById('ninetyDataFile');
+            const dataType = document.getElementById('ninetyDataType').value;
+            
+            if (!fileInput.files[0]) {
+                showMessage('Please select a file to upload', true);
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('ninetyDataFile', file);
+            formData.append('dataType', dataType);
+            
+            try {
+                // Show progress
+                document.getElementById('ninetyUploadProgress').style.display = 'block';
+                document.getElementById('ninetyUploadResults').style.display = 'none';
+                
+                const response = await fetch('/api/ninety-data/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                // Hide progress
+                document.getElementById('ninetyUploadProgress').style.display = 'none';
+                
+                if (result.success) {
+                    showMessage(`Ninety.io ${dataType} uploaded successfully! Processed ${result.recordsProcessed} records.`);
+                    
+                    // Show results
+                    document.getElementById('ninetyUploadResults').style.display = 'block';
+                    document.getElementById('ninetyUploadResultsContent').innerHTML = `
+                        <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px;">
+                            <strong>✅ Upload Successful</strong><br>
+                            <strong>File:</strong> ${result.filename}<br>
+                            <strong>Data Type:</strong> ${result.dataType}<br>
+                            <strong>Records Processed:</strong> ${result.recordsProcessed}<br>
+                            <strong>Data Saved:</strong> ${result.savedData ? 'Yes' : 'No'}
+                        </div>
+                    `;
+                    
+                    // Clear file input
+                    fileInput.value = '';
+                    
+                    // Refresh data based on type
+                    if (dataType === 'todos') loadTodos();
+                    else if (dataType === 'rocks') loadRocks();
+                    else if (dataType === 'issues') loadIssues();
+                    else if (dataType === 'data') loadData();
+                    
+                } else {
+                    showMessage('Upload failed: ' + result.message, true);
+                    document.getElementById('ninetyUploadResults').style.display = 'block';
+                    document.getElementById('ninetyUploadResultsContent').innerHTML = `
+                        <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px;">
+                            <strong>❌ Upload Failed</strong><br>
+                            ${result.message}
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                document.getElementById('ninetyUploadProgress').style.display = 'none';
+                showMessage('Upload error: ' + error.message, true);
+            }
+        }
+
+        async function loadTodos() {
+            try {
+                const response = await fetch('/api/ninety-data/todos');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentNinetyData.todos = data.todos;
+                    displayTodos(data.todos);
+                    document.getElementById('todosSection').style.display = 'block';
+                    showMessage(`Loaded ${data.todos.length} To-Do items`);
+                } else {
+                    showMessage('Failed to load To-Do\'s: ' + data.message, true);
+                }
+            } catch (error) {
+                showMessage('Error loading To-Do\'s: ' + error.message, true);
+            }
+        }
+
+        async function loadRocks() {
+            try {
+                const response = await fetch('/api/ninety-data/rocks');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentNinetyData.rocks = data.rocks;
+                    displayRocks(data.rocks);
+                    document.getElementById('rocksSection').style.display = 'block';
+                    showMessage(`Loaded ${data.rocks.length} Rocks`);
+                } else {
+                    showMessage('Failed to load Rocks: ' + data.message, true);
+                }
+            } catch (error) {
+                showMessage('Error loading Rocks: ' + error.message, true);
+            }
+        }
+
+        async function loadIssues() {
+            try {
+                const response = await fetch('/api/ninety-data/issues');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentNinetyData.issues = data.issues;
+                    displayIssues(data.issues);
+                    document.getElementById('issuesSection').style.display = 'block';
+                    showMessage(`Loaded ${data.issues.length} Issues`);
+                } else {
+                    showMessage('Failed to load Issues: ' + data.message, true);
+                }
+            } catch (error) {
+                showMessage('Error loading Issues: ' + error.message, true);
+            }
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('/api/ninety-data/data');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentNinetyData.data = data.data;
+                    displayData(data.data);
+                    document.getElementById('dataSection').style.display = 'block';
+                    showMessage(`Loaded ${data.data.length} Data items`);
+                } else {
+                    showMessage('Failed to load Data: ' + data.message, true);
+                }
+            } catch (error) {
+                showMessage('Error loading Data: ' + error.message, true);
+            }
+        }
+
+        function displayTodos(todos) {
+            const container = document.getElementById('todosData');
+            
+            if (!todos || todos.length === 0) {
+                container.innerHTML = '<p>No To-Do items found. Upload a Ninety.io To-Do export file to get started.</p>';
+                return;
+            }
+            
+            container.innerHTML = todos.map(todo => `
+                <div class="ninety-item">
+                    <h4>${todo.title || 'Untitled To-Do'}</h4>
+                    <p><strong>Owner:</strong> ${todo.owner || 'Not assigned'}</p>
+                    <p><strong>Status:</strong> ${todo.status || 'Open'}</p>
+                    <p><strong>Due Date:</strong> ${todo.dueDate || 'No due date'}</p>
+                    ${todo.description ? `<p><strong>Description:</strong> ${todo.description}</p>` : ''}
+                    <p><strong>Priority:</strong> ${todo.priority || 'Medium'}</p>
+                    <div class="ninety-actions">
+                        <button onclick="editNinetyItem('todos', '${todo.id}')">Edit</button>
+                        <button onclick="deleteNinetyItem('todos', '${todo.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayRocks(rocks) {
+            const container = document.getElementById('rocksData');
+            
+            if (!rocks || rocks.length === 0) {
+                container.innerHTML = '<p>No Rocks found. Upload a Ninety.io Rocks export file to get started.</p>';
+                return;
+            }
+            
+            container.innerHTML = rocks.map(rock => `
+                <div class="ninety-item">
+                    <h4>${rock.title || 'Untitled Rock'}</h4>
+                    <p><strong>Owner:</strong> ${rock.owner || 'Not assigned'}</p>
+                    <p><strong>Status:</strong> ${rock.status || 'Open'}</p>
+                    <p><strong>Due Date:</strong> ${rock.dueDate || 'No due date'}</p>
+                    ${rock.description ? `<p><strong>Description:</strong> ${rock.description}</p>` : ''}
+                    <p><strong>Progress:</strong> ${rock.progress || '0'}%</p>
+                    <div class="ninety-actions">
+                        <button onclick="editNinetyItem('rocks', '${rock.id}')">Edit</button>
+                        <button onclick="deleteNinetyItem('rocks', '${rock.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayIssues(issues) {
+            const container = document.getElementById('issuesData');
+            
+            if (!issues || issues.length === 0) {
+                container.innerHTML = '<p>No Issues found. Upload a Ninety.io Issues export file to get started.</p>';
+                return;
+            }
+            
+            container.innerHTML = issues.map(issue => `
+                <div class="ninety-item">
+                    <h4>${issue.title || 'Untitled Issue'}</h4>
+                    <p><strong>Owner:</strong> ${issue.owner || 'Not assigned'}</p>
+                    <p><strong>Status:</strong> ${issue.status || 'Open'}</p>
+                    <p><strong>Priority:</strong> ${issue.priority || 'Medium'}</p>
+                    ${issue.description ? `<p><strong>Description:</strong> ${issue.description}</p>` : ''}
+                    <p><strong>Created:</strong> ${issue.createdDate || 'Unknown'}</p>
+                    <div class="ninety-actions">
+                        <button onclick="editNinetyItem('issues', '${issue.id}')">Edit</button>
+                        <button onclick="deleteNinetyItem('issues', '${issue.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayData(data) {
+            const container = document.getElementById('dataData');
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p>No Data found. Upload a Ninety.io Data export file to get started.</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(item => `
+                <div class="ninety-item">
+                    <h4>${item.title || 'Untitled Data'}</h4>
+                    <p><strong>Type:</strong> ${item.type || 'Unknown'}</p>
+                    <p><strong>Value:</strong> ${item.value || 'No value'}</p>
+                    <p><strong>Owner:</strong> ${item.owner || 'Not assigned'}</p>
+                    ${item.description ? `<p><strong>Description:</strong> ${item.description}</p>` : ''}
+                    <p><strong>Updated:</strong> ${item.updatedDate || 'Unknown'}</p>
+                    <div class="ninety-actions">
+                        <button onclick="editNinetyItem('data', '${item.id}')">Edit</button>
+                        <button onclick="deleteNinetyItem('data', '${item.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function editNinetyItem(type, id) {
+            // TODO: Implement edit functionality
+            showMessage('Edit functionality will be implemented in future updates', false);
+        }
+
+        async function deleteNinetyItem(type, id) {
+            if (!confirm('Are you sure you want to delete this item?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/ninety-data/${type}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Item deleted successfully');
+                    // Refresh the appropriate section
+                    if (type === 'todos') loadTodos();
+                    else if (type === 'rocks') loadRocks();
+                    else if (type === 'issues') loadIssues();
+                    else if (type === 'data') loadData();
+                } else {
+                    showMessage('Failed to delete item: ' + result.message, true);
+                }
+            } catch (error) {
+                showMessage('Error deleting item: ' + error.message, true);
+            }
+        }
+
+        function viewNinetyData() {
+            // Show all sections
+            document.getElementById('todosSection').style.display = 'block';
+            document.getElementById('rocksSection').style.display = 'block';
+            document.getElementById('issuesSection').style.display = 'block';
+            document.getElementById('dataSection').style.display = 'block';
+            
+            // Load all data
+            loadTodos();
+            loadRocks();
+            loadIssues();
+            loadData();
+        }
+
+        async function clearNinetyData() {
+            if (!confirm('Are you sure you want to clear all Ninety.io data? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/ninety-data/clear', {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('All Ninety.io data cleared successfully');
+                    
+                    // Clear all sections
+                    document.getElementById('todosData').innerHTML = '<p>No To-Do items found.</p>';
+                    document.getElementById('rocksData').innerHTML = '<p>No Rocks found.</p>';
+                    document.getElementById('issuesData').innerHTML = '<p>No Issues found.</p>';
+                    document.getElementById('dataData').innerHTML = '<p>No Data found.</p>';
+                    
+                    // Hide sections
+                    document.getElementById('todosSection').style.display = 'none';
+                    document.getElementById('rocksSection').style.display = 'none';
+                    document.getElementById('issuesSection').style.display = 'none';
+                    document.getElementById('dataSection').style.display = 'none';
+                    
+                    // Clear current data
+                    currentNinetyData = {
+                        todos: [],
+                        rocks: [],
+                        issues: [],
+                        data: []
+                    };
+                    
+                } else {
+                    showMessage('Failed to clear data: ' + result.message, true);
+                }
+            } catch (error) {
+                showMessage('Error clearing data: ' + error.message, true);
+            }
+        }
+        function showMessage(text, isError = false) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = isError ? 'error' : 'success';
+            div.textContent = text;
+            messages.appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        async function updateSection(section, data) {
+            try {
+                const response = await fetch('/api/update', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ section, data })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(`${section} updated successfully!`);
+                } else {
+                    showMessage(`Failed to update ${section}: ${result.message}`, true);
+                }
+            } catch (error) {
+                showMessage(`Error updating ${section}: ${error.message}`, true);
+            }
+        }
+
+        function updateGoals() {
+            const quarterlyCurrent = parseInt(document.getElementById('quarterlyCurrent').value);
+            const quarterlyTarget = parseInt(document.getElementById('quarterlyTarget').value);
+            const monthlyCurrent = parseInt(document.getElementById('monthlyCurrent').value);
+            const monthlyTarget = parseInt(document.getElementById('monthlyTarget').value);
+            
+            const data = {
+                quarterly: {
+                    target: quarterlyTarget,
+                    current: quarterlyCurrent,
+                    percentage: Math.round((quarterlyCurrent / quarterlyTarget) * 100)
+                },
+                monthly: {
+                    target: monthlyTarget,
+                    current: monthlyCurrent,
+                    percentage: Math.round((monthlyCurrent / monthlyTarget) * 100)
+                }
+            };
+            updateSection('goals', data);
+        }
+
+        function updateFunnel() {
+            const data = {
+                leads: parseInt(document.getElementById('leads').value),
+                prospects: parseInt(document.getElementById('prospects').value),
+                qualified: parseInt(document.getElementById('qualified').value),
+                proposals: parseInt(document.getElementById('proposals').value),
+                closed: parseInt(document.getElementById('closed').value),
+                revenue: parseInt(document.getElementById('revenue').value)
+            };
+            updateSection('revenueFunnel', data);
+        }
+
+        function updateVTO() {
+            const data = {
+                available: parseInt(document.getElementById('vtoAvailable').value),
+                used: parseInt(document.getElementById('vtoUsed').value),
+                pending: parseInt(document.getElementById('vtoPending').value),
+                remaining: parseInt(document.getElementById('vtoRemaining').value)
+            };
+            updateSection('vto', data);
+        }
+
+        function updateIssues() {
+            const critical = parseInt(document.getElementById('criticalIssues').value);
+            const high = parseInt(document.getElementById('highIssues').value);
+            const medium = parseInt(document.getElementById('mediumIssues').value);
+            const low = parseInt(document.getElementById('lowIssues').value);
+            
+            const data = {
+                critical, high, medium, low,
+                total: critical + high + medium + low
+            };
+            updateSection('issues', data);
+        }
+
+        function updateScorecard() {
+            const data = {
+                customerSatisfaction: parseInt(document.getElementById('customerSatisfaction').value),
+                teamEfficiency: parseInt(document.getElementById('teamEfficiency').value),
+                goalCompletion: parseInt(document.getElementById('goalCompletion').value),
+                qualityScore: parseInt(document.getElementById('qualityScore').value)
+            };
+            updateSection('scorecard', data);
+        }
+
+        async function loadCurrentData() {
+            try {
+                const response = await fetch('/api/dashboard');
+                const data = await response.json();
+                
+                // Populate form fields with current data
+                document.getElementById('quarterlyTarget').value = data.goals.quarterly.target;
+                document.getElementById('quarterlyCurrent').value = data.goals.quarterly.current;
+                document.getElementById('monthlyTarget').value = data.goals.monthly.target;
+                document.getElementById('monthlyCurrent').value = data.goals.monthly.current;
+                
+                document.getElementById('leads').value = data.revenueFunnel.leads;
+                document.getElementById('prospects').value = data.revenueFunnel.prospects;
+                document.getElementById('qualified').value = data.revenueFunnel.qualified;
+                document.getElementById('proposals').value = data.revenueFunnel.proposals;
+                document.getElementById('closed').value = data.revenueFunnel.closed;
+                document.getElementById('revenue').value = data.revenueFunnel.revenue;
+                
+                // Continue for other sections...
+                showMessage('Current data loaded successfully!');
+            } catch (error) {
+                showMessage('Failed to load current data: ' + error.message, true);
+            }
+        }
+
+        // ===== FILE UPLOAD FUNCTIONS =====
+        async function uploadDataFile() {
+            const fileInput = document.getElementById('dataFile');
+            const dataType = document.getElementById('dataType').value;
+            
+            if (!fileInput.files[0]) {
+                showMessage('Please select a file to upload', true);
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('dataFile', file);
+            formData.append('dataType', dataType);
+            
+            try {
+                // Show progress
+                document.getElementById('uploadProgress').style.display = 'block';
+                document.getElementById('uploadResults').style.display = 'none';
+                
+                const response = await fetch('/api/upload-data', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                // Hide progress
+                document.getElementById('uploadProgress').style.display = 'none';
+                
+                if (result.success) {
+                    showMessage(`File uploaded successfully! Processed ${result.recordsProcessed} records.`);
+                    
+                    // Show results
+                    document.getElementById('uploadResults').style.display = 'block';
+                    document.getElementById('uploadResultsContent').innerHTML = `
+                        <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px;">
+                            <strong>✅ Upload Successful</strong><br>
+                            <strong>File:</strong> ${result.filename}<br>
+                            <strong>Data Type:</strong> ${result.dataType}<br>
+                            <strong>Records Processed:</strong> ${result.recordsProcessed}<br>
+                            <strong>Data Saved:</strong> ${result.savedData ? 'Yes' : 'No'}
+                        </div>
+                    `;
+                    
+                    // Clear file input
+                    fileInput.value = '';
+                    
+                    // Refresh relevant data if leadership was uploaded
+                    if (dataType === 'leadership') {
+                        loadLeadershipTeam();
+                    }
+                    
+                } else {
+                    showMessage('Upload failed: ' + result.message, true);
+                    document.getElementById('uploadResults').style.display = 'block';
+                    document.getElementById('uploadResultsContent').innerHTML = `
+                        <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px;">
+                            <strong>❌ Upload Failed</strong><br>
+                            ${result.message}
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                document.getElementById('uploadProgress').style.display = 'none';
+                showMessage('Upload error: ' + error.message, true);
+            }
+        }
+
+        async function downloadTemplate() {
+            const dataType = document.getElementById('dataType').value;
+            
+            try {
+                const response = await fetch(`/api/download-template/${dataType}`);
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${dataType}-template.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    showMessage(`Template downloaded: ${dataType}-template.xlsx`);
+                } else {
+                    showMessage('Failed to download template', true);
+                }
+                
+            } catch (error) {
+                showMessage('Download error: ' + error.message, true);
+            }
+        }
+
+        async function viewUploadHistory() {
+            try {
+                const response = await fetch('/api/upload-history');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const historySection = document.getElementById('uploadHistorySection');
+                    const historyContent = document.getElementById('uploadHistoryContent');
+                    
+                    if (data.history.length === 0) {
+                        historyContent.innerHTML = '<p>No upload history found.</p>';
+                    } else {
+                        historyContent.innerHTML = data.history.map(entry => `
+                            <div style="background: ${entry.success ? '#d4edda' : '#f8d7da'}; 
+                                        color: ${entry.success ? '#155724' : '#721c24'}; 
+                                        padding: 10px; margin: 5px 0; border-radius: 5px;">
+                                <strong>${entry.success ? '✅' : '❌'} ${entry.dataType}</strong> - 
+                                ${new Date(entry.uploadDate).toLocaleString()}<br>
+                                Records: ${entry.totalRecords} processed, ${entry.savedRecords} saved
+                            </div>
+                        `).join('');
+                    }
+                    
+                    historySection.style.display = 'block';
+                    showMessage('Upload history loaded');
+                    
+                } else {
+                    showMessage('Failed to load upload history', true);
+                }
+                
+            } catch (error) {
+                showMessage('History error: ' + error.message, true);
+            }
+        }
+
+        // Load current data when page loads
+        window.onload = loadCurrentData;
+
+    </script>
+</body>
+</html> 
