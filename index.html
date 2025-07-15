@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adsync Media Hub - Company Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-logo">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>Adsync Media Hub</h1>
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Tools</div>
+                    <a href="#" class="nav-item active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="meetings">
+                        <i class="fas fa-users"></i>
+                        <span>Meetings</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="scorecard">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Scorecard</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="rocks">
+                        <i class="fas fa-mountain"></i>
+                        <span>Rocks</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="todos">
+                        <i class="fas fa-check-circle"></i>
+                        <span>To-Dos</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="issues">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Issues</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Platform</div>
+                    <a href="#" class="nav-item" data-section="google-ads">
+                        <i class="fab fa-google"></i>
+                        <span>Google Ads</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="facebook-ads">
+                        <i class="fab fa-facebook"></i>
+                        <span>Facebook Ads</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="analytics">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Analytics</span>
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Organization</div>
+                    <a href="#" class="nav-item" data-section="vision">
+                        <i class="fas fa-eye"></i>
+                        <span>Vision</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="org-chart">
+                        <i class="fas fa-sitemap"></i>
+                        <span>Org Chart</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="knowledge">
+                        <i class="fas fa-book"></i>
+                        <span>Knowledge Portal</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-content">
+                    <h1 class="header-title">Dashboard</h1>
+                <div class="header-controls">
+                    <div class="date-selector">
+                        <div class="calendar-controls">
+                            <button id="calendarToggle" class="calendar-toggle">
+                                <i class="fas fa-calendar-alt"></i> Select Date/Range
+                            </button>
+                            <div id="calendarDropdown" class="calendar-dropdown" style="display: none;">
+                                <div class="calendar-header">
+                                    <div class="view-mode-toggles">
+                                        <button id="singleDateMode" class="mode-toggle active">Single Date</button>
+                                        <button id="dateRangeMode" class="mode-toggle">Date Range</button>
+                                        <button id="summaryMode" class="mode-toggle">All Days Summary</button>
+                                    </div>
+                                </div>
+                                <div class="calendar-container">
+                                    <div class="calendar-navigation">
+                                        <button id="prevMonth" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+                                        <span id="currentMonth" class="month-year"></span>
+                                        <button id="nextMonth" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+                                    </div>
+                                    <div class="calendar-grid">
+                                        <div class="calendar-weekdays">
+                                            <div class="weekday">Sun</div>
+                                            <div class="weekday">Mon</div>
+                                            <div class="weekday">Tue</div>
+                                            <div class="weekday">Wed</div>
+                                            <div class="weekday">Thu</div>
+                                            <div class="weekday">Fri</div>
+                                            <div class="weekday">Sat</div>
+                                        </div>
+                                        <div id="calendarDays" class="calendar-days"></div>
+                                    </div>
+                                    <div class="calendar-footer">
+                                        <div class="selected-info">
+                                            <span id="selectedDateInfo">Select a date to view data</span>
+                                        </div>
+                                        <div class="calendar-actions">
+                                            <button id="todayBtn" class="action-btn">Today</button>
+                                            <button id="applySelection" class="action-btn primary" disabled>Apply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-info">
+                        <div class="last-updated">
+                            <i class="fas fa-clock"></i>
+                            <span>Last Updated: <span id="lastUpdated">Loading...</span></span>
+                        </div>
+                        <div class="auto-refresh">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Auto-refresh: Daily at 8:00 AM</span>
+                        </div>
+                    </div>
+                    <div class="header-info">
+                        <div class="last-updated">
+                            <i class="fas fa-clock"></i>
+                            <span>Last Updated: <span id="lastUpdated">Loading...</span></span>
+                        </div>
+                        <div class="auto-refresh">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Auto-refresh: Daily at 8:00 AM</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="dashboard-main">
+                
+                                <!-- Dashboard Overview (shown only on dashboard) -->
+                <section class="dashboard-section" id="dashboard-overview">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard Overview
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshDashboardBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Summary -->
+                    <div class="quick-stats-grid">
+                        <div class="stat-card revenue">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalRevenue">$0</div>
+                                <div class="stat-label">Total Revenue</div>
+                                <div class="stat-change positive" id="revenueChange">+0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card profit">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalProfit">$0</div>
+                                <div class="stat-label">Total Profit</div>
+                                <div class="stat-change positive" id="profitChange">+0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card roas">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="avgROAS">0.00</div>
+                                <div class="stat-label">Avg ROAS</div>
+                                <div class="stat-change positive" id="roasChange">+0%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card conversions">
+                            <div class="stat-icon">
+                                <i class="fas fa-mouse-pointer"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalConversions">0</div>
+                                <div class="stat-label">Conversions</div>
+                                <div class="stat-change positive" id="conversionsChange">+0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ninety.io Summary -->
+                    <div class="ninety-summary">
+                        <h3 class="summary-title">
+                            <i class="fas fa-tasks"></i> Ninety.io Summary
+                        </h3>
+                        <div class="ninety-summary-grid">
+                            <div class="summary-card rocks-summary">
+                                <div class="summary-header">
+                                    <h4><i class="fas fa-mountain"></i> Rocks</h4>
+                                    <span class="summary-count" id="rocksCount">0</span>
+                                </div>
+                                <div class="summary-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="rocksProgress" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-text" id="rocksProgressText">0% Complete</span>
+                                </div>
+                                <div class="summary-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">On Track:</span>
+                                        <span class="stat-value" id="rocksOnTrack">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">At Risk:</span>
+                                        <span class="stat-value warning" id="rocksAtRisk">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="summary-card todos-summary">
+                                <div class="summary-header">
+                                    <h4><i class="fas fa-check-circle"></i> To-Dos</h4>
+                                    <span class="summary-count" id="todosCount">0</span>
+                                </div>
+                                <div class="summary-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="todosProgress" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-text" id="todosProgressText">0% Complete</span>
+                                </div>
+                                <div class="summary-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Due Today:</span>
+                                        <span class="stat-value warning" id="todosDueToday">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Overdue:</span>
+                                        <span class="stat-value danger" id="todosOverdue">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="summary-card issues-summary">
+                                <div class="summary-header">
+                                    <h4><i class="fas fa-exclamation-triangle"></i> Issues</h4>
+                                    <span class="summary-count" id="issuesCount">0</span>
+                                </div>
+                                <div class="summary-breakdown">
+                                    <div class="issue-type critical">
+                                        <span class="issue-label">Critical:</span>
+                                        <span class="issue-count" id="issuesCritical">0</span>
+                                    </div>
+                                    <div class="issue-type high">
+                                        <span class="issue-label">High:</span>
+                                        <span class="issue-count" id="issuesHigh">0</span>
+                                    </div>
+                                    <div class="issue-type medium">
+                                        <span class="issue-label">Medium:</span>
+                                        <span class="issue-count" id="issuesMedium">0</span>
+                                    </div>
+                                    <div class="issue-type low">
+                                        <span class="issue-label">Low:</span>
+                                        <span class="issue-count" id="issuesLow">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="summary-card meetings-summary">
+                                <div class="summary-header">
+                                    <h4><i class="fas fa-users"></i> Meetings</h4>
+                                    <span class="summary-count" id="meetingsCount">0</span>
+                                </div>
+                                <div class="summary-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Today:</span>
+                                        <span class="stat-value" id="meetingsToday">0</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">This Week:</span>
+                                        <span class="stat-value" id="meetingsWeek">0</span>
+                                    </div>
+                                </div>
+                                <div class="next-meeting">
+                                    <span class="meeting-label">Next Meeting:</span>
+                                    <span class="meeting-time" id="nextMeetingTime">No meetings scheduled</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Feed -->
+                    <div class="recent-activity">
+                        <h3 class="activity-title">
+                            <i class="fas fa-clock"></i> Recent Activity
+                        </h3>
+                        <div class="activity-feed" id="activityFeed">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">Platform data refreshed</div>
+                                    <div class="activity-time">Just now</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-upload"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">Waiting for Ninety.io data upload</div>
+                                    <div class="activity-time">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Platform Performance Overview -->
+                    <div class="platform-performance">
+                        <h3 class="performance-title">
+                            <i class="fas fa-chart-bar"></i> Platform Performance
+                        </h3>
+                        <div class="platform-cards">
+                    <!-- Google Ads Card -->
+                    <div class="platform-card google-card">
+                        <div class="platform-header">
+                            <h3><i class="fab fa-google"></i> Google Ads</h3>
+                            <span class="platform-status" id="googleStatus">Active - Primary</span>
+                        </div>
+                        <div class="platform-metrics">
+                            <div class="metric-row">
+                                <div class="metric">
+                                    <label>Impressions</label>
+                                    <span id="googleImpressions">0</span>
+                                    <small>Times ads were displayed</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Clicks</label>
+                                    <span id="googleClicks">0</span>
+                                    <small>Clicks on ads</small>
+                                </div>
+                                <div class="metric">
+                                    <label>CTR</label>
+                                    <span id="googleCTR">0%</span>
+                                    <small>Click-through rate</small>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric">
+                                    <label>Revenue</label>
+                                    <span id="googleRevenue">$0</span>
+                                    <small>Total revenue generated</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Ad Spend</label>
+                                    <span id="googleAdSpend">$0</span>
+                                    <small>Amount spent on ads</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Profit</label>
+                                    <span id="googleProfit">$0</span>
+                                    <small>Revenue minus ad spend</small>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric">
+                                    <label>ROAS</label>
+                                    <span id="googleROAS">0.00</span>
+                                    <small>Return on ad spend</small>
+                                </div>
+                                <div class="metric">
+                                    <label>CPC</label>
+                                    <span id="googleCPC">$0.00</span>
+                                    <small>Cost per click</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Conv. Rate</label>
+                                    <span id="googleConvRate">0%</span>
+                                    <small>Conversion percentage</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="platform-recommendation">
+                            <i class="fas fa-lightbulb"></i>
+                            <span id="googleRecommendation">Increase Budget</span>
+                        </div>
+                    </div>
+
+                    <!-- Facebook Ads Card -->
+                    <div class="platform-card facebook-card">
+                        <div class="platform-header">
+                            <h3><i class="fab fa-facebook"></i> Facebook Ads</h3>
+                            <span class="platform-status" id="facebookStatus">Active - Secondary</span>
+                        </div>
+                        <div class="platform-metrics">
+                            <div class="metric-row">
+                                <div class="metric">
+                                    <label>Impressions</label>
+                                    <span id="facebookImpressions">0</span>
+                                    <small>Times ads were displayed</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Clicks</label>
+                                    <span id="facebookClicks">0</span>
+                                    <small>Clicks on ads</small>
+                                </div>
+                                <div class="metric">
+                                    <label>CTR</label>
+                                    <span id="facebookCTR">0%</span>
+                                    <small>Click-through rate</small>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric">
+                                    <label>Revenue</label>
+                                    <span id="facebookRevenue">$0</span>
+                                    <small>Total revenue generated</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Ad Spend</label>
+                                    <span id="facebookAdSpend">$0</span>
+                                    <small>Amount spent on ads</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Profit</label>
+                                    <span id="facebookProfit">$0</span>
+                                    <small>Revenue minus ad spend</small>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <div class="metric">
+                                    <label>ROAS</label>
+                                    <span id="facebookROAS">0.00</span>
+                                    <small>Return on ad spend</small>
+                                </div>
+                                <div class="metric">
+                                    <label>CPC</label>
+                                    <span id="facebookCPC">$0.00</span>
+                                    <small>Cost per click</small>
+                                </div>
+                                <div class="metric">
+                                    <label>Conv. Rate</label>
+                                    <span id="facebookConvRate">0%</span>
+                                    <small>Conversion percentage</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="platform-recommendation">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span id="facebookRecommendation">Needs Optimization</span>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </section>
+
+                <!-- Scorecard Section -->
+                <section class="dashboard-section" id="scorecard-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-chart-bar"></i> Scorecard
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshScorecardsBtn" class="btn btn-primary btn-sm">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <div class="data-source-badge">
+                            <i class="fas fa-file-import"></i>
+                            <span>Ninety.io Import</span>
+                        </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Platform Performance for Scorecard -->
+                    <div class="platform-cards">
+                        <!-- Google Ads Card -->
+                        <div class="platform-card google-card">
+                            <div class="platform-header">
+                                <h3><i class="fab fa-google"></i> Google Ads</h3>
+                                <span class="platform-status" id="googleStatus">Active - Primary</span>
+                            </div>
+                            <div class="platform-metrics">
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Impressions</label>
+                                        <span id="googleImpressions">0</span>
+                                        <small>Times ads were displayed</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Clicks</label>
+                                        <span id="googleClicks">0</span>
+                                        <small>Clicks on ads</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>CTR</label>
+                                        <span id="googleCTR">0%</span>
+                                        <small>Click-through rate</small>
+                                    </div>
+                                </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Revenue</label>
+                                        <span id="googleRevenue">$0</span>
+                                        <small>Total revenue generated</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Ad Spend</label>
+                                        <span id="googleAdSpend">$0</span>
+                                        <small>Amount spent on ads</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Profit</label>
+                                        <span id="googleProfit">$0</span>
+                                        <small>Revenue minus ad spend</small>
+                                    </div>
+                                </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>ROAS</label>
+                                        <span id="googleROAS">0.00</span>
+                                        <small>Return on ad spend</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>CPC</label>
+                                        <span id="googleCPC">$0.00</span>
+                                        <small>Cost per click</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Conv. Rate</label>
+                                        <span id="googleConvRate">0%</span>
+                                        <small>Conversion percentage</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="platform-recommendation">
+                                <i class="fas fa-lightbulb"></i>
+                                <span id="googleRecommendation">Increase Budget</span>
+                            </div>
+                        </div>
+                
+                        <!-- Facebook Ads Card -->
+                        <div class="platform-card facebook-card">
+                            <div class="platform-header">
+                                <h3><i class="fab fa-facebook"></i> Facebook Ads</h3>
+                                <span class="platform-status" id="facebookStatus">Active - Secondary</span>
+                            </div>
+                            <div class="platform-metrics">
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Impressions</label>
+                                        <span id="facebookImpressions">0</span>
+                                        <small>Times ads were displayed</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Clicks</label>
+                                        <span id="facebookClicks">0</span>
+                                        <small>Clicks on ads</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>CTR</label>
+                                        <span id="facebookCTR">0%</span>
+                                        <small>Click-through rate</small>
+                                    </div>
+                                </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Revenue</label>
+                                        <span id="facebookRevenue">$0</span>
+                                        <small>Total revenue generated</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Ad Spend</label>
+                                        <span id="facebookAdSpend">$0</span>
+                                        <small>Amount spent on ads</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Profit</label>
+                                        <span id="facebookProfit">$0</span>
+                                        <small>Revenue minus ad spend</small>
+                                    </div>
+                                </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>ROAS</label>
+                                        <span id="facebookROAS">0.00</span>
+                                        <small>Return on ad spend</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>CPC</label>
+                                        <span id="facebookCPC">$0.00</span>
+                                        <small>Cost per click</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Conv. Rate</label>
+                                        <span id="facebookConvRate">0%</span>
+                                        <small>Conversion percentage</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="platform-recommendation">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span id="facebookRecommendation">Needs Optimization</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Rocks Section -->
+                <section class="dashboard-section" id="rocks-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-mountain"></i> Rocks
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshRocksBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <div class="data-source-badge">
+                                <i class="fas fa-file-import"></i>
+                                <span>Ninety.io Import</span>
+                        </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ninety-list" id="rocksList">
+                        <div class="ninety-empty-state">
+                            <i class="fas fa-mountain"></i>
+                            <h3>No Rocks Found</h3>
+                            <p>Upload your Ninety.io Rocks export file to get started.</p>
+                            <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Data
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- To-Dos Section -->
+                <section class="dashboard-section" id="todos-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-check-circle"></i> To-Dos
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshTodosBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <div class="data-source-badge">
+                                <i class="fas fa-file-import"></i>
+                                <span>Ninety.io Import</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ninety-list" id="todosList">
+                        <div class="ninety-empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>No To-Do's Found</h3>
+                            <p>Upload your Ninety.io To-Do's export file to get started.</p>
+                            <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Data
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Issues Section -->
+                <section class="dashboard-section" id="issues-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-exclamation-triangle"></i> Issues
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshIssuesBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <div class="data-source-badge">
+                                <i class="fas fa-file-import"></i>
+                                <span>Ninety.io Import</span>
+                        </div>
+                    </div>
+                </div>
+                
+                    <div class="ninety-list" id="issuesList">
+                        <div class="ninety-empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>No Issues Found</h3>
+                            <p>Upload your Ninety.io Issues export file to get started.</p>
+                            <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Data
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Meetings Section -->
+                <section class="dashboard-section" id="meetings-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-users"></i> Meetings
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshMeetingsBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <div class="data-source-badge">
+                                <i class="fas fa-file-import"></i>
+                                <span>Ninety.io Import</span>
+                        </div>
+                    </div>
+                </div>
+                
+                    <div class="ninety-empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No Meetings Scheduled</h3>
+                        <p>Create your first meeting to get started.</p>
+                        <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Schedule Meeting
+                        </button>
+                </div>
+            </section>
+
+                <!-- Platform Sections -->
+                <section class="dashboard-section" id="google-ads-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fab fa-google"></i> Google Ads
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshGoogleBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="platform-cards">
+                        <!-- Google Ads Card -->
+                        <div class="platform-card google-card">
+                            <div class="platform-header">
+                                <h3><i class="fab fa-google"></i> Google Ads Performance</h3>
+                                <span class="platform-status" id="googleStatus">Active - Primary</span>
+                            </div>
+                            <div class="platform-metrics">
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Impressions</label>
+                                        <span id="googleImpressions">0</span>
+                                        <small>Times ads were displayed</small>
+                        </div>
+                                    <div class="metric">
+                                        <label>Clicks</label>
+                                        <span id="googleClicks">0</span>
+                                        <small>Clicks on ads</small>
+                    </div>
+                                    <div class="metric">
+                                        <label>CTR</label>
+                                        <span id="googleCTR">0%</span>
+                                        <small>Click-through rate</small>
+                        </div>
+                    </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Revenue</label>
+                                        <span id="googleRevenue">$0</span>
+                                        <small>Total revenue generated</small>
+                                    </div>
+                                    <div class="metric">
+                                        <label>Ad Spend</label>
+                                        <span id="googleAdSpend">$0</span>
+                                        <small>Amount spent on ads</small>
+                        </div>
+                                    <div class="metric">
+                                        <label>Profit</label>
+                                        <span id="googleProfit">$0</span>
+                                        <small>Revenue minus ad spend</small>
+                    </div>
+                </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>ROAS</label>
+                                        <span id="googleROAS">0.00</span>
+                                        <small>Return on ad spend</small>
+                </div>
+                                    <div class="metric">
+                                        <label>CPC</label>
+                                        <span id="googleCPC">$0.00</span>
+                                        <small>Cost per click</small>
+                            </div>
+                                    <div class="metric">
+                                        <label>Conv. Rate</label>
+                                        <span id="googleConvRate">0%</span>
+                                        <small>Conversion percentage</small>
+                        </div>
+                    </div>
+                            </div>
+                            <div class="platform-recommendation">
+                                <i class="fas fa-lightbulb"></i>
+                                <span id="googleRecommendation">Increase Budget</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+                <section class="dashboard-section" id="facebook-ads-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fab fa-facebook"></i> Facebook Ads
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshFacebookBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                    </div>
+                    </div>
+                    
+                    <div class="platform-cards">
+                        <!-- Facebook Ads Card -->
+                        <div class="platform-card facebook-card">
+                            <div class="platform-header">
+                                <h3><i class="fab fa-facebook"></i> Facebook Ads Performance</h3>
+                                <span class="platform-status" id="facebookStatus">Active - Secondary</span>
+                    </div>
+                            <div class="platform-metrics">
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Impressions</label>
+                                        <span id="facebookImpressions">0</span>
+                                        <small>Times ads were displayed</small>
+                    </div>
+                                    <div class="metric">
+                                        <label>Clicks</label>
+                                        <span id="facebookClicks">0</span>
+                                        <small>Clicks on ads</small>
+                    </div>
+                                    <div class="metric">
+                                        <label>CTR</label>
+                                        <span id="facebookCTR">0%</span>
+                                        <small>Click-through rate</small>
+                    </div>
+                </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>Revenue</label>
+                                        <span id="facebookRevenue">$0</span>
+                                        <small>Total revenue generated</small>
+                        </div>
+                                    <div class="metric">
+                                        <label>Ad Spend</label>
+                                        <span id="facebookAdSpend">$0</span>
+                                        <small>Amount spent on ads</small>
+                    </div>
+                                    <div class="metric">
+                                        <label>Profit</label>
+                                        <span id="facebookProfit">$0</span>
+                                        <small>Revenue minus ad spend</small>
+                        </div>
+                    </div>
+                                <div class="metric-row">
+                                    <div class="metric">
+                                        <label>ROAS</label>
+                                        <span id="facebookROAS">0.00</span>
+                                        <small>Return on ad spend</small>
+                        </div>
+                                    <div class="metric">
+                                        <label>CPC</label>
+                                        <span id="facebookCPC">$0.00</span>
+                                        <small>Cost per click</small>
+                    </div>
+                                    <div class="metric">
+                                        <label>Conv. Rate</label>
+                                        <span id="facebookConvRate">0%</span>
+                                        <small>Conversion percentage</small>
+                    </div>
+                </div>
+                            </div>
+                            <div class="platform-recommendation">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span id="facebookRecommendation">Needs Optimization</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Organization Sections -->
+                <section class="dashboard-section" id="vision-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-eye"></i> Vision
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshVisionBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ninety-empty-state">
+                        <i class="fas fa-eye"></i>
+                        <h3>Vision Not Set</h3>
+                        <p>Create your company vision to get started.</p>
+                        <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Vision
+                        </button>
+                            </div>
+                </section>
+
+                <section class="dashboard-section" id="org-chart-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-sitemap"></i> Org Chart
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshOrgChartBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ninety-empty-state">
+                        <i class="fas fa-sitemap"></i>
+                        <h3>Org Chart Not Available</h3>
+                        <p>Set up your organization chart to get started.</p>
+                        <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Org Chart
+                        </button>
+                            </div>
+                </section>
+
+                <section class="dashboard-section" id="knowledge-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-book"></i> Knowledge Portal
+                        </h2>
+                        <div class="section-controls">
+                            <button id="refreshKnowledgeBtn" class="btn btn-primary btn-sm">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="ninety-empty-state">
+                        <i class="fas fa-book"></i>
+                        <h3>Knowledge Base Empty</h3>
+                        <p>Add knowledge articles to get started.</p>
+                        <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Article
+                        </button>
+                </div>
+            </section>
+        </main>
+        </div>
+    </div>
+
+    <!-- Ninety.io Data Detail Modal -->
+    <div id="ninetyDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Item Details</h2>
+                <span class="close" onclick="closeNinetyModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <!-- Content will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeNinetyModal()" class="btn btn-secondary">Close</button>
+                <button onclick="window.open('/admin', '_blank')" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit in Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the dashboard JavaScript -->
+    <script src="dashboard.js"></script>
+    
+    <!-- Data Extraction Info -->
+    <div class="extraction-info">
+        <div class="extraction-badge">
+            <i class="fas fa-database"></i>
+            <span>Data Source: Tableau Public</span>
+            <span class="extraction-time" id="extractionTime">Last extracted: Loading...</span>
+        </div>
+    </div>
+</body>
+</html>
