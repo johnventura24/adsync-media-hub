@@ -11,7 +11,7 @@ if (!fs.existsSync(publicDir)) {
 }
 
 // Files that should be in public directory
-const staticFiles = ['index.html', 'styles.css', 'dashboard.js'];
+const staticFiles = ['index.html', 'styles.css', 'dashboard.js', 'admin.html'];
 
 staticFiles.forEach(file => {
   const rootFile = path.join(__dirname, file);
@@ -34,6 +34,21 @@ staticFiles.forEach(file => {
     }
   }
 });
+
+// Ensure admin.html is always available
+const adminHtmlPath = path.join(publicDir, 'admin.html');
+if (!fs.existsSync(adminHtmlPath)) {
+  console.log('Admin.html not found in public directory, attempting to create it...');
+  
+  // Try to find admin.html in root directory
+  const rootAdminPath = path.join(__dirname, 'admin.html');
+  if (fs.existsSync(rootAdminPath)) {
+    fs.copyFileSync(rootAdminPath, adminHtmlPath);
+    console.log('Admin.html copied from root to public directory');
+  } else {
+    console.log('Warning: Admin.html not found in root directory either');
+  }
+}
 
 console.log('File organization complete!');
 
