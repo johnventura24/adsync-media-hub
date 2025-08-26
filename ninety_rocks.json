@@ -1,0 +1,38 @@
+[
+  {
+    "id": "rock_1",
+    "title": "Increase Q4 Revenue by 25%",
+    "description": "Focus on expanding client base and upselling existing clients",
+    "owner": "John Smith",
+    "department": "Sales",
+    "status": "in-progress",
+    "progress": 65,
+    "dueDate": "2024-12-31",
+    "created_date": "2024-10-01T00:00:00.000Z",
+    "updated_date": "2024-10-15T00:00:00.000Z"
+  },
+  {
+    "id": "rock_2",
+    "title": "Launch New Marketing Campaign",
+    "description": "Develop and execute comprehensive digital marketing strategy",
+    "owner": "Sarah Johnson",
+    "department": "Marketing",
+    "status": "pending",
+    "progress": 20,
+    "dueDate": "2024-11-30",
+    "created_date": "2024-10-01T00:00:00.000Z",
+    "updated_date": "2024-10-10T00:00:00.000Z"
+  },
+  {
+    "id": "rock_3",
+    "title": "Improve Customer Satisfaction Score",
+    "description": "Target 90%+ satisfaction rating through service improvements",
+    "owner": "Mike Davis",
+    "department": "Operations",
+    "status": "completed",
+    "progress": 100,
+    "dueDate": "2024-10-31",
+    "created_date": "2024-10-01T00:00:00.000Z",
+    "updated_date": "2024-10-25T00:00:00.000Z"
+  }
+]

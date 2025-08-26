@@ -1,0 +1,35 @@
+[
+  {
+    "id": "todo_1",
+    "title": "Review Q4 Marketing Strategy",
+    "description": "Analyze current campaign performance and plan Q4 initiatives",
+    "owner": "Sarah Johnson",
+    "department": "Marketing",
+    "status": "pending",
+    "priority": "high",
+    "dueDate": "2024-10-20T00:00:00.000Z",
+    "complete": false
+  },
+  {
+    "id": "todo_2",
+    "title": "Update Customer Database",
+    "description": "Clean and update customer contact information",
+    "owner": "Mike Davis",
+    "department": "Operations",
+    "status": "in-progress",
+    "priority": "medium",
+    "dueDate": "2024-10-25T00:00:00.000Z",
+    "complete": false
+  },
+  {
+    "id": "todo_3",
+    "title": "Prepare Sales Presentation",
+    "description": "Create presentation for upcoming client meeting",
+    "owner": "John Smith",
+    "department": "Sales",
+    "status": "completed",
+    "priority": "high",
+    "dueDate": "2024-10-15T00:00:00.000Z",
+    "complete": true
+  }
+]

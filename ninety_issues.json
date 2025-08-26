@@ -1,0 +1,35 @@
+[
+  {
+    "id": "issue_1",
+    "title": "Website Performance Issues",
+    "description": "Slow loading times affecting user experience",
+    "owner": "Tech Team",
+    "department": "Technology",
+    "status": "in-progress",
+    "priority": "high",
+    "created": "2024-10-01T00:00:00.000Z",
+    "due": "2024-10-20T00:00:00.000Z"
+  },
+  {
+    "id": "issue_2",
+    "title": "Customer Support Response Time",
+    "description": "Support tickets taking too long to resolve",
+    "owner": "Support Team",
+    "department": "Operations",
+    "status": "open",
+    "priority": "medium",
+    "created": "2024-10-05T00:00:00.000Z",
+    "due": "2024-10-25T00:00:00.000Z"
+  },
+  {
+    "id": "issue_3",
+    "title": "Marketing Budget Overrun",
+    "description": "Q4 marketing spend exceeding allocated budget",
+    "owner": "Marketing Team",
+    "department": "Marketing",
+    "status": "resolved",
+    "priority": "high",
+    "created": "2024-10-01T00:00:00.000Z",
+    "due": "2024-10-15T00:00:00.000Z"
+  }
+]

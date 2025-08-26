@@ -1,0 +1,38 @@
+[
+  {
+    "id": "scorecard_1",
+    "title": "Customer Satisfaction",
+    "target": "90%",
+    "value": "87%",
+    "type": "percentage",
+    "category": "Customer",
+    "owner": "Operations Team",
+    "department": "Operations",
+    "created_date": "2024-10-01T00:00:00.000Z",
+    "updated_date": "2024-10-15T00:00:00.000Z"
+  },
+  {
+    "id": "scorecard_2",
+    "title": "Revenue Growth",
+    "target": "25%",
+    "value": "22%",
+    "type": "percentage",
+    "category": "Revenue",
+    "owner": "Sales Team",
+    "department": "Sales",
+    "created_date": "2024-10-01T00:00:00.000Z",
+    "updated_date": "2024-10-15T00:00:00.000Z"
+  },
+  {
+    "id": "scorecard_3",
+    "title": "Lead Conversion Rate",
+    "target": "15%",
+    "value": "18%",
+    "type": "percentage",
+    "category": "Sales",
+    "owner": "Marketing Team",
+    "department": "Marketing",
+    "created_date": "2024-10-01T00:00:00.000Z",
+    "updated_date": "2024-10-15T00:00:00.000Z"
+  }
+]
