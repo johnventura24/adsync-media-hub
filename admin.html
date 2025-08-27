@@ -1228,13 +1228,16 @@
     </div>
 
     <!-- Departments Section -->
-    <div id="departments-section" class="content-section">
-        <h2>Department Management</h2>
-        <div class="section-actions">
-            <button id="create-department-btn" class="btn btn-primary" onclick="openCreateDepartmentModal()">
-                <i class="fas fa-plus"></i> Create New Department
-            </button>
-        </div>
+            <div id="departments-section" class="content-section">
+            <h2>Department Management</h2>
+            <div class="section-actions">
+                <button id="create-department-btn" class="btn btn-primary" onclick="openCreateDepartmentModal()">
+                    <i class="fas fa-plus"></i> Create New Department
+                </button>
+                <button id="test-departments-btn" class="btn btn-secondary" onclick="testDepartmentsAPI()">
+                    <i class="fas fa-bug"></i> Test API
+                </button>
+            </div>
         
         <div id="departments-container">
             <table class="departments-table">
@@ -1424,12 +1427,27 @@
         }
 
         function showAdminPanel() {
+            console.log('🔄 Showing admin panel...');
+            console.log('👤 Current user:', currentUser);
+            console.log('🔑 Auth token:', authToken ? 'Available' : 'Missing');
+            
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
             document.getElementById('admin-user-info').textContent = `Welcome, ${currentUser.firstName} ${currentUser.lastName}`;
-            loadUsers();
-            loadTeams();
-            loadDepartments();
+            
+            // Load data with error handling
+            Promise.allSettled([
+                loadUsers(),
+                loadTeams(),
+                loadDepartments()
+            ]).then(results => {
+                console.log('📊 Admin panel data loading results:', results);
+                results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                        console.error(`❌ Data loading failed for index ${index}:`, result.reason);
+                    }
+                });
+            });
         }
 
         function logout() {
@@ -2144,28 +2162,59 @@
 
         async function loadDepartments() {
             try {
+                if (!authToken) {
+                    console.error('❌ No auth token available');
+                    showNotification('Authentication required. Please log in again.', 'error');
+                    return;
+                }
+                
+                console.log('🔄 Loading departments...');
                 const response = await fetch('/api/admin/departments', {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
                 
+                console.log('📊 Department response status:', response.status);
+                
                 if (response.ok) {
                     const result = await response.json();
+                    console.log('📊 Department response data:', result);
+                    
                     departments = result.departments || [];
+                    console.log('✅ Loaded departments:', departments);
+                    
                     renderDepartmentsTable();
                 } else {
-                    showNotification('Failed to load departments', 'error');
+                    const errorText = await response.text();
+                    console.error('❌ Department load failed:', response.status, errorText);
+                    showNotification(`Failed to load departments: ${response.status}`, 'error');
                 }
             } catch (error) {
-                console.error('Error loading departments:', error);
-                showNotification('Failed to load departments', 'error');
+                console.error('❌ Error loading departments:', error);
+                showNotification('Failed to load departments: ' + error.message, 'error');
             }
         }
 
         function renderDepartmentsTable() {
             const tbody = document.getElementById('departments-table-body');
-            if (!tbody) return;
+            if (!tbody) {
+                console.log('⚠️ Departments table body not found');
+                return;
+            }
+            
+            console.log('🔄 Rendering departments table with', departments.length, 'departments');
+            
+            if (departments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #6c757d; padding: 30px;">
+                            No departments found. Create your first department to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
             
             tbody.innerHTML = departments.map(dept => `
                 <tr>
@@ -2175,7 +2224,7 @@
                     <td>${dept.memberCount || 0}</td>
                     <td>
                         <span class="status-badge ${dept.status === 'active' ? 'status-active' : 'status-inactive'}">
-                            ${dept.status}
+                            ${dept.status || 'active'}
                         </span>
                     </td>
                     <td>
@@ -2190,6 +2239,8 @@
                     </td>
                 </tr>
             `).join('');
+            
+            console.log('✅ Departments table rendered successfully');
         }
 
         function openCreateDepartmentModal() {
@@ -2342,6 +2393,23 @@
         // Load available departments for dropdowns
         async function loadAvailableDepartments() {
             try {
+                if (!authToken) {
+                    console.error('❌ No auth token available for loading departments');
+                    // Use fallback departments immediately
+                    availableDepartments = [
+                        { id: 'marketing', name: 'Marketing', status: 'active' },
+                        { id: 'sales', name: 'Sales', status: 'active' },
+                        { id: 'operations', name: 'Operations', status: 'active' },
+                        { id: 'finance', name: 'Finance', status: 'active' },
+                        { id: 'hr', name: 'Human Resources', status: 'active' },
+                        { id: 'it', name: 'Information Technology', status: 'active' },
+                        { id: 'general', name: 'General', status: 'active' }
+                    ];
+                    console.log('✅ Using fallback departments due to no auth token');
+                    return;
+                }
+                
+                console.log('🔄 Loading available departments for dropdowns...');
                 const response = await fetch('/api/admin/departments', {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
@@ -2352,19 +2420,23 @@
                     const result = await response.json();
                     availableDepartments = result.departments || [];
                     console.log('✅ Loaded available departments:', availableDepartments);
+                } else {
+                    console.log('⚠️ Department API returned status:', response.status);
+                    throw new Error(`API returned status ${response.status}`);
                 }
             } catch (error) {
                 console.error('❌ Error loading departments:', error);
                 // Fallback to default departments if API fails
                 availableDepartments = [
-                    { id: 'marketing', name: 'Marketing' },
-                    { id: 'sales', name: 'Sales' },
-                    { id: 'operations', name: 'Operations' },
-                    { id: 'finance', name: 'Finance' },
-                    { id: 'hr', name: 'Human Resources' },
-                    { id: 'it', name: 'Information Technology' },
-                    { id: 'general', name: 'General' }
+                    { id: 'marketing', name: 'Marketing', status: 'active' },
+                    { id: 'sales', name: 'Sales', status: 'active' },
+                    { id: 'operations', name: 'Operations', status: 'active' },
+                    { id: 'finance', name: 'Finance', status: 'active' },
+                    { id: 'hr', name: 'Human Resources', status: 'active' },
+                    { id: 'it', name: 'Information Technology', status: 'active' },
+                    { id: 'general', name: 'General', status: 'active' }
                 ];
+                console.log('✅ Using fallback departments:', availableDepartments);
             }
         }
 
@@ -2493,7 +2565,57 @@
             if (excelUploadForm) {
                 excelUploadForm.addEventListener('submit', handleExcelUpload);
             }
+            
+            // Load departments for the departments section
+            if (document.getElementById('departments-section')) {
+                loadDepartments();
+            }
         });
+
+        // Test function to debug departments API
+        async function testDepartmentsAPI() {
+            try {
+                console.log('🧪 Testing departments API...');
+                console.log('🔑 Auth token:', authToken ? 'Available' : 'Missing');
+                console.log('👤 Current user:', currentUser);
+                
+                if (!authToken) {
+                    showNotification('No auth token available', 'error');
+                    return;
+                }
+                
+                const response = await fetch('/api/admin/departments', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                console.log('📊 Test response status:', response.status);
+                console.log('📊 Test response headers:', response.headers);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Test successful:', result);
+                    showNotification('API test successful!', 'success');
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Test failed:', response.status, errorText);
+                    showNotification(`API test failed: ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Test error:', error);
+                showNotification('API test error: ' + error.message, 'error');
+            }
+        }
+
+        // Utility function to escape HTML and prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
 </body>
 </html> 
