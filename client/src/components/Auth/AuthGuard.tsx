@@ -8,6 +8,11 @@ interface AuthGuardProps {
 }
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
+  // TEMPORARY: Authentication disabled for testing
+  // Remove this bypass when ready to enable authentication
+  return <>{children}</>;
+
+  /* Original authentication logic (commented out for now)
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
@@ -37,6 +42,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
 
   return <>{children}</>;
+  */
 };
 
 export default AuthGuard;

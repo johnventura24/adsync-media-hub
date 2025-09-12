@@ -34,6 +34,14 @@ interface OrganizationProviderProps {
 
 export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
+  
+  // TEMPORARY: Mock organization when auth is disabled
+  const mockOrganization: Organization = {
+    id: 'demo-org-id',
+    name: 'Demo Company',
+    description: 'Sample organization for demonstration',
+    industry: 'Technology'
+  };
   const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null);
   const [userOrganizations, setUserOrganizations] = useState<UserOrganization[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,8 +70,8 @@ export const OrganizationProvider: React.FC<OrganizationProviderProps> = ({ chil
       setCurrentOrganization(orgToSet);
       setIsLoading(false);
     } else if (!isAuthenticated) {
-      // Clear state when user logs out
-      setCurrentOrganization(null);
+      // TEMPORARY: Use mock organization when not authenticated  
+      setCurrentOrganization(mockOrganization);
       setUserOrganizations([]);
       setIsLoading(false);
     }

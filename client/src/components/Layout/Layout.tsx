@@ -58,6 +58,14 @@ const Layout: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout } = useAuth();
+  
+  // TEMPORARY: Mock user for testing when auth is disabled
+  const displayUser = user || {
+    first_name: 'Demo',
+    last_name: 'User',
+    email: 'demo@hubdashboard.com',
+    role: 'admin'
+  };
   const { currentOrganization } = useOrganization();
   
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -185,11 +193,11 @@ const Layout: React.FC = () => {
             sx={{ p: 0 }}
           >
             <Avatar
-              alt={user?.first_name}
+              alt={displayUser?.first_name}
               src={user?.avatar_url}
               sx={{ width: 32, height: 32 }}
             >
-              {user?.first_name?.[0]?.toUpperCase()}
+              {displayUser?.first_name?.[0]?.toUpperCase()}
             </Avatar>
           </IconButton>
           
