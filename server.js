@@ -18,6 +18,7 @@ const todosRoutes = require('./routes/todos');
 const processesRoutes = require('./routes/processes');
 const csvRoutes = require('./routes/csv');
 const dashboardRoutes = require('./routes/dashboard');
+const seedRoutes = require('./routes/seed');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -90,6 +91,7 @@ app.use('/api/todos', todosRoutes);
 app.use('/api/processes', processesRoutes);
 app.use('/api/csv', csvRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/seed', seedRoutes);
 
 // Serve static files from the React app build directory
 if (process.env.NODE_ENV === 'production') {
