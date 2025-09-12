@@ -1,0 +1,7 @@
+client/node_modules
+client/build
+node_modules
+.env
+*.log
+coverage
+.DS_Store

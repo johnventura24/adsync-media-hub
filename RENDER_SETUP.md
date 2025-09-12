@@ -12,7 +12,13 @@
 
 ### 2. Build & Deploy Settings
 ```
-Build Command: npm install && cd client && npm install --legacy-peer-deps && npm run build && cd ..
+Build Command: npm run build
+Start Command: npm start
+```
+
+**Alternative if above doesn't work:**
+```
+Build Command: node deploy.js
 Start Command: node server.js
 ```
 
