@@ -3,7 +3,8 @@ services:
     name: hub-dashboard
     env: node
     plan: starter
-    buildCommand: ./build.sh
+    rootDir: .
+    buildCommand: npm install && cd client && npm install --legacy-peer-deps && npm run build && cd ..
     startCommand: npm start
     envVars:
       - key: NODE_ENV
