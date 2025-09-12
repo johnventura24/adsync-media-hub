@@ -185,7 +185,7 @@ const DashboardPage: React.FC = () => {
             Your Overview
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={2.4}>
+            <Grid item xs={12} sm={6} md={4} lg={2}>
               <MetricCard
                 title="Rocks Progress"
                 value={`${personalDashboard.stats.rocks_completion}%`}
@@ -194,7 +194,7 @@ const DashboardPage: React.FC = () => {
                 progress={personalDashboard.stats.rocks_completion}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={2.4}>
+            <Grid item xs={12} sm={6} md={4} lg={2}>
               <MetricCard
                 title="Overdue Tasks"
                 value={personalDashboard.stats.todos_overdue}
@@ -203,7 +203,7 @@ const DashboardPage: React.FC = () => {
                 color={personalDashboard.stats.todos_overdue > 0 ? 'error' : 'success'}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={2.4}>
+            <Grid item xs={12} sm={6} md={4} lg={2}>
               <MetricCard
                 title="Due Today"
                 value={personalDashboard.stats.todos_due_today}
@@ -212,7 +212,7 @@ const DashboardPage: React.FC = () => {
                 color="warning"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={2.4}>
+            <Grid item xs={12} sm={6} md={4} lg={2}>
               <MetricCard
                 title="High Priority"
                 value={personalDashboard.stats.high_priority_items}
@@ -221,7 +221,7 @@ const DashboardPage: React.FC = () => {
                 color="error"
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={2.4}>
+            <Grid item xs={12} sm={6} md={4} lg={2}>
               <MetricCard
                 title="Meetings Today"
                 value={personalDashboard.stats.meetings_today}
