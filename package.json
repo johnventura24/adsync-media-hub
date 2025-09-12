@@ -12,29 +12,36 @@
     "install:client": "cd client && npm install --legacy-peer-deps",
     "render-build": "node deploy.js"
   },
-  "keywords": ["dashboard", "EOS", "business-management", "ninety.io", "hub"],
+  "keywords": [
+    "dashboard",
+    "EOS",
+    "business-management",
+    "ninety.io",
+    "hub"
+  ],
   "author": "Hub Dashboard Team",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "dotenv": "^16.3.1",
     "@supabase/supabase-js": "^2.38.4",
-    "multer": "^1.4.5-lts.1",
-    "csv-parser": "^3.0.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "express-rate-limit": "^7.1.5",
     "compression": "^1.7.4",
-    "morgan": "^1.10.0",
-    "validator": "^13.11.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.2.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
-    "uuid": "^9.0.1"
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.1",
+    "validator": "^13.11.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2",
     "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
     "supertest": "^6.3.3"
   },
   "engines": {
