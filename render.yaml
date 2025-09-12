@@ -4,7 +4,7 @@ services:
     env: node
     plan: starter
     rootDir: .
-    buildCommand: npm install && cd client && npm install --legacy-peer-deps && npm run build && cd ..
+    buildCommand: chmod +x build.sh && ./build.sh
     startCommand: npm start
     envVars:
       - key: NODE_ENV
