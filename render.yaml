@@ -3,7 +3,7 @@ services:
     name: hub-dashboard
     env: node
     plan: starter
-    buildCommand: npm install && npm run build
+    buildCommand: ./build.sh
     startCommand: npm start
     envVars:
       - key: NODE_ENV
