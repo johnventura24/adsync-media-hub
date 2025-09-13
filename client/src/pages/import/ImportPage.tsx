@@ -60,6 +60,7 @@ const ImportPage: React.FC = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [selectedImportType, setSelectedImportType] = useState('');
+  const [preUploadType, setPreUploadType] = useState(''); // Type selected before upload
   const [importTypes, setImportTypes] = useState<ImportType[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,9 +82,15 @@ const ImportPage: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (!preUploadType) {
+      alert('Please select a data type before uploading the file.');
+      return;
+    }
+
     setIsUploading(true);
     const formData = new FormData();
     formData.append('csvFile', file);
+    formData.append('type', preUploadType); // Include the selected type
 
     try {
       const response = await api.post('/csv/upload', formData, {
@@ -93,6 +100,7 @@ const ImportPage: React.FC = () => {
       });
 
       setUploadResult(response.data);
+      setSelectedImportType(preUploadType); // Set the import type from pre-selection
       if (response.data.success && response.data.validRows > 0) {
         setImportDialogOpen(true);
       }
@@ -117,7 +125,8 @@ const ImportPage: React.FC = () => {
     try {
       const response = await api.post('/csv/import', {
         filename: uploadResult.filename,
-        importType: selectedImportType,
+        type: selectedImportType,
+        organizationId: 'demo-org-id', // Use mock organization ID
       });
 
       // Show success message
@@ -125,6 +134,7 @@ const ImportPage: React.FC = () => {
       setImportDialogOpen(false);
       setUploadResult(null);
       setSelectedImportType('');
+      setPreUploadType('');
     } catch (error: any) {
       alert(`Import failed: ${error.response?.data?.error || 'Unknown error'}`);
     } finally {
@@ -165,6 +175,22 @@ const ImportPage: React.FC = () => {
                 Upload CSV File
               </Typography>
               
+              {/* Data Type Selection */}
+              <FormControl fullWidth sx={{ mb: 3 }}>
+                <InputLabel>Select Data Type</InputLabel>
+                <Select
+                  value={preUploadType}
+                  onChange={(e) => setPreUploadType(e.target.value)}
+                  label="Select Data Type"
+                >
+                  {importTypes.map((type) => (
+                    <MenuItem key={type.type} value={type.type}>
+                      {type.name} - {type.description}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <input
                   type="file"
@@ -179,10 +205,16 @@ const ImportPage: React.FC = () => {
                   size="large"
                   startIcon={<UploadIcon />}
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
+                  disabled={isUploading || !preUploadType}
                 >
                   {isUploading ? 'Uploading...' : 'Choose CSV File'}
                 </Button>
+                
+                {!preUploadType && (
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Select a data type first
+                  </Typography>
+                )}
                 
                 {isUploading && (
                   <Box sx={{ mt: 2 }}>

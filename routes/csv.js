@@ -327,7 +327,7 @@ router.post('/upload', authenticateToken, upload.single('csvFile'), async (req, 
     }
 
     const { type } = req.body;
-    if (!type || !['users', 'scorecards', 'rocks', 'todos', 'issues'].includes(type)) {
+    if (!type || !['users', 'scorecards', 'rocks', 'todos', 'issues', 'meetings', 'processes'].includes(type)) {
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
       return res.status(400).json({
