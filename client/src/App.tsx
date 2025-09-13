@@ -28,6 +28,7 @@ import ProcessesPage from './pages/processes/ProcessesPage';
 import TeamPage from './pages/team/TeamPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import ImportPage from './pages/import/ImportPage';
+import DataPage from './pages/data/DataPage';
 import SettingsPage from './pages/settings/SettingsPage';
 
 // Create a client
@@ -155,6 +156,7 @@ function App() {
                     }>
                       <Route index element={<Navigate to="/dashboard" replace />} />
                       <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="data" element={<DataPage />} />
                       <Route path="rocks" element={<RocksPage />} />
                       <Route path="todos" element={<TodosPage />} />
                       <Route path="issues" element={<IssuesPage />} />

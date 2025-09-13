@@ -27,6 +27,7 @@ import {
   AccountTree as ProcessesIcon,
   People as TeamIcon,
   CloudUpload as ImportIcon,
+  Storage as DataIcon,
   Settings as SettingsIcon,
   AccountCircle as ProfileIcon,
   Logout as LogoutIcon,
@@ -44,6 +45,7 @@ const drawerWidth = 280;
 
 const navigationItems = [
   { text: 'Dashboard', icon: DashboardIcon, path: '/dashboard' },
+  { text: 'Data', icon: DataIcon, path: '/data' },
   { text: 'Rocks', icon: RocksIcon, path: '/rocks' },
   { text: 'To-Dos', icon: TodosIcon, path: '/todos' },
   { text: 'Issues', icon: IssuesIcon, path: '/issues' },
