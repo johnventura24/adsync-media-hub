@@ -72,13 +72,13 @@ const DataPage: React.FC = () => {
   const [teamFilter, setTeamFilter] = useState('all');
   
   // Data states
-  const [rocks, setRocks] = useState([]);
-  const [todos, setTodos] = useState([]);
-  const [issues, setIssues] = useState([]);
-  const [scorecards, setScorecards] = useState([]);
-  const [meetings, setMeetings] = useState([]);
-  const [processes, setProcesses] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [rocks, setRocks] = useState<any[]>([]);
+  const [todos, setTodos] = useState<any[]>([]);
+  const [issues, setIssues] = useState<any[]>([]);
+  const [scorecards, setScorecards] = useState<any[]>([]);
+  const [meetings, setMeetings] = useState<any[]>([]);
+  const [processes, setProcesses] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const tabs = [
