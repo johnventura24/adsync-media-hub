@@ -95,6 +95,99 @@ const DataPage: React.FC = () => {
     loadData();
   }, []);
 
+  // Add sample data for demonstration when no real data exists
+  useEffect(() => {
+    if (scorecards.length === 0) {
+      setScorecards([
+        {
+          id: '1',
+          name: 'Creative Team Scorecard',
+          description: 'Track creative team performance metrics',
+          frequency: 'weekly',
+          is_active: true,
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '2', 
+          name: 'Copywriter Performance',
+          description: 'Monitor copywriter deliverables and quality',
+          frequency: 'weekly',
+          is_active: true,
+          updated_at: new Date().toISOString()
+        }
+      ]);
+    }
+
+    if (rocks.length === 0) {
+      setRocks([
+        {
+          id: '1',
+          title: 'Increase Customer Satisfaction',
+          owner_name: 'Demo User',
+          quarter: 'Q4',
+          year: 2024,
+          progress_percentage: 75,
+          status: 'on_track',
+          due_date: '2024-12-31'
+        },
+        {
+          id: '2',
+          title: 'Launch Mobile App',
+          owner_name: 'Demo User', 
+          quarter: 'Q4',
+          year: 2024,
+          progress_percentage: 60,
+          status: 'on_track',
+          due_date: '2024-12-15'
+        }
+      ]);
+    }
+
+    if (todos.length === 0) {
+      setTodos([
+        {
+          id: '1',
+          title: 'Review Q4 Performance Metrics',
+          assignee_name: 'Demo User',
+          priority: 'high',
+          status: 'pending',
+          due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: '2',
+          title: 'Update Team Documentation',
+          assignee_name: 'Demo User',
+          priority: 'medium', 
+          status: 'in_progress',
+          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ]);
+    }
+
+    if (issues.length === 0) {
+      setIssues([
+        {
+          id: '1',
+          title: 'Server Response Time',
+          reporter_name: 'Demo User',
+          assignee_name: 'Demo User',
+          priority: 'high',
+          status: 'open',
+          category: 'technical'
+        },
+        {
+          id: '2',
+          title: 'Communication Gap',
+          reporter_name: 'Demo User',
+          assignee_name: 'Demo User', 
+          priority: 'medium',
+          status: 'open',
+          category: 'process'
+        }
+      ]);
+    }
+  }, [scorecards.length, rocks.length, todos.length, issues.length]);
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -461,6 +554,9 @@ const DataPage: React.FC = () => {
                   <MenuItem value="creative">Creative Team</MenuItem>
                   <MenuItem value="editors">Editors Team</MenuItem>
                   <MenuItem value="copywriter">Copywriter</MenuItem>
+                  <MenuItem value="management">Management</MenuItem>
+                  <MenuItem value="sales">Sales</MenuItem>
+                  <MenuItem value="marketing">Marketing</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
