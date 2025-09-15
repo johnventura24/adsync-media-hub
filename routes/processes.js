@@ -5,6 +5,30 @@ const { authenticateToken, getUserOrganizations, requireOrganizationAccess } = r
 
 const router = express.Router();
 
+// Get all processes (no auth required for demo)
+router.get('/', async (req, res) => {
+  try {
+    const { data: processes, error } = await supabase
+      .from('processes')
+      .select(`
+        *,
+        owner:users!owner_id(first_name, last_name),
+        organization:organizations!organization_id(name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      processes: processes || [],
+      total: processes?.length || 0
+    });
+  } catch (error) {
+    console.error('Error fetching processes:', error);
+    res.status(500).json({ error: 'Failed to fetch processes' });
+  }
+});
+
 // Validation rules
 const processValidation = [
   body('name')

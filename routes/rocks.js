@@ -5,6 +5,35 @@ const { authenticateToken, getUserOrganizations, requireOrganizationAccess } = r
 
 const router = express.Router();
 
+// Get all rocks (no auth required for demo)
+router.get('/', async (req, res) => {
+  try {
+    const { data: rocks, error } = await supabase
+      .from('rocks')
+      .select(`
+        *,
+        owner:users!owner_id(first_name, last_name),
+        organization:organizations!organization_id(name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const formattedRocks = rocks.map(rock => ({
+      ...rock,
+      owner_name: rock.owner ? `${rock.owner.first_name} ${rock.owner.last_name}` : 'Unassigned'
+    }));
+
+    res.json({
+      rocks: formattedRocks,
+      total: rocks.length
+    });
+  } catch (error) {
+    console.error('Error fetching rocks:', error);
+    res.status(500).json({ error: 'Failed to fetch rocks' });
+  }
+});
+
 // Validation rules
 const rockValidation = [
   body('title')

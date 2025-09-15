@@ -5,6 +5,38 @@ const { authenticateToken, requireManagerOrAdmin, getUserOrganizations, requireO
 
 const router = express.Router();
 
+// Get all users (no auth required for demo)
+router.get('/', async (req, res) => {
+  try {
+    const { data: users, error } = await supabase
+      .from('users')
+      .select(`
+        id,
+        email,
+        first_name,
+        last_name,
+        role,
+        department,
+        position,
+        phone,
+        is_active,
+        created_at,
+        updated_at
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      users: users || [],
+      total: users?.length || 0
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
 // Get all users in organization
 router.get('/organization/:organizationId', 
   authenticateToken, 

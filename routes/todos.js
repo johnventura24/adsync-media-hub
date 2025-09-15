@@ -5,6 +5,35 @@ const { authenticateToken, getUserOrganizations, requireOrganizationAccess } = r
 
 const router = express.Router();
 
+// Get all todos (no auth required for demo)
+router.get('/', async (req, res) => {
+  try {
+    const { data: todos, error } = await supabase
+      .from('todos')
+      .select(`
+        *,
+        assignee:users!assignee_id(first_name, last_name),
+        organization:organizations!organization_id(name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const formattedTodos = todos.map(todo => ({
+      ...todo,
+      assignee_name: todo.assignee ? `${todo.assignee.first_name} ${todo.assignee.last_name}` : 'Unassigned'
+    }));
+
+    res.json({
+      todos: formattedTodos,
+      total: todos.length
+    });
+  } catch (error) {
+    console.error('Error fetching todos:', error);
+    res.status(500).json({ error: 'Failed to fetch todos' });
+  }
+});
+
 // Validation rules
 const todoValidation = [
   body('title')

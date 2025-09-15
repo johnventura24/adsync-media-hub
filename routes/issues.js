@@ -5,6 +5,37 @@ const { authenticateToken, getUserOrganizations, requireOrganizationAccess } = r
 
 const router = express.Router();
 
+// Get all issues (no auth required for demo)
+router.get('/', async (req, res) => {
+  try {
+    const { data: issues, error } = await supabase
+      .from('issues')
+      .select(`
+        *,
+        reporter:users!reporter_id(first_name, last_name),
+        assignee:users!assignee_id(first_name, last_name),
+        organization:organizations!organization_id(name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const formattedIssues = issues.map(issue => ({
+      ...issue,
+      reporter_name: issue.reporter ? `${issue.reporter.first_name} ${issue.reporter.last_name}` : 'Unknown',
+      assignee_name: issue.assignee ? `${issue.assignee.first_name} ${issue.assignee.last_name}` : 'Unassigned'
+    }));
+
+    res.json({
+      issues: formattedIssues,
+      total: issues.length
+    });
+  } catch (error) {
+    console.error('Error fetching issues:', error);
+    res.status(500).json({ error: 'Failed to fetch issues' });
+  }
+});
+
 // Validation rules
 const issueValidation = [
   body('title')

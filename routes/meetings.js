@@ -5,6 +5,30 @@ const { authenticateToken, getUserOrganizations, requireOrganizationAccess } = r
 
 const router = express.Router();
 
+// Get all meetings (no auth required for demo)
+router.get('/', async (req, res) => {
+  try {
+    const { data: meetings, error } = await supabase
+      .from('meetings')
+      .select(`
+        *,
+        organizer:users!organizer_id(first_name, last_name),
+        organization:organizations!organization_id(name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      meetings: meetings || [],
+      total: meetings?.length || 0
+    });
+  } catch (error) {
+    console.error('Error fetching meetings:', error);
+    res.status(500).json({ error: 'Failed to fetch meetings' });
+  }
+});
+
 // Validation rules
 const meetingValidation = [
   body('title')
