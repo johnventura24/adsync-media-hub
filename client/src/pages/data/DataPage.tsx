@@ -551,12 +551,19 @@ const DataPage: React.FC = () => {
                 <InputLabel>Team</InputLabel>
                 <Select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
                   <MenuItem value="all">All Teams</MenuItem>
+                  <MenuItem value="account">Account Team</MenuItem>
+                  <MenuItem value="auto">Auto Team</MenuItem>
                   <MenuItem value="creative">Creative Team</MenuItem>
-                  <MenuItem value="editors">Editors Team</MenuItem>
-                  <MenuItem value="copywriter">Copywriter</MenuItem>
-                  <MenuItem value="management">Management</MenuItem>
-                  <MenuItem value="sales">Sales</MenuItem>
-                  <MenuItem value="marketing">Marketing</MenuItem>
+                  <MenuItem value="cro">CRO Team</MenuItem>
+                  <MenuItem value="finance">Finance & Admin Team</MenuItem>
+                  <MenuItem value="leadership">Leadership Team</MenuItem>
+                  <MenuItem value="media">Media Team</MenuItem>
+                  <MenuItem value="medicare">Medicare ACA</MenuItem>
+                  <MenuItem value="sales">Sales & Success Team</MenuItem>
+                  <MenuItem value="taxonomy">Taxonomy</MenuItem>
+                  <MenuItem value="tech">Tech Team</MenuItem>
+                  <MenuItem value="testing">Testing Team</MenuItem>
+                  <MenuItem value="vii">VII</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

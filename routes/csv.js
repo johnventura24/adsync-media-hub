@@ -257,14 +257,14 @@ router.get('/import-types', authenticateToken, (req, res) => {
       {
         type: 'scorecards',
         name: 'Scorecards',
-        description: 'Import scorecards and KPI tracking',
-        requiredFields: ['name'],
-        optionalFields: ['description', 'frequency', 'is_active'],
+        description: 'Import scorecards and KPI tracking data',
+        requiredFields: [],
+        optionalFields: ['Any columns - flexible structure'],
         sampleData: {
-          name: 'Sales Scorecard',
-          description: 'Track sales team performance',
-          frequency: 'weekly',
-          is_active: 'true'
+          title: 'Copywriter - Total Deliverables',
+          goal: '>= 1',
+          average: '0',
+          total: '0'
         }
       },
       {
@@ -312,6 +312,18 @@ router.get('/import-types', authenticateToken, (req, res) => {
           category: 'Technical',
           due_date: '2024-02-15'
         }
+      },
+      {
+        type: 'generic',
+        name: 'Generic Data',
+        description: 'Import any CSV data with flexible structure',
+        requiredFields: [],
+        optionalFields: ['Any columns accepted - no template required'],
+        sampleData: {
+          'Column 1': 'Any data',
+          'Column 2': 'Any format',
+          'Column 3': 'Flexible import'
+        }
       }
     ]
   });
@@ -327,11 +339,11 @@ router.post('/upload', authenticateToken, upload.single('csvFile'), async (req, 
     }
 
     const { type } = req.body;
-    if (!type || !['users', 'scorecards', 'rocks', 'todos', 'issues', 'meetings', 'processes'].includes(type)) {
+    if (!type) {
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
       return res.status(400).json({
-        error: 'Invalid import type'
+        error: 'Import type is required'
       });
     }
 
@@ -346,36 +358,29 @@ router.post('/upload', authenticateToken, upload.single('csvFile'), async (req, 
       });
     }
 
-    // Validate data based on type
+    // Flexible validation - accept any CSV structure
     let validationErrors = [];
     csvData.forEach((row, index) => {
-      switch (type) {
-        case 'users':
-          validationErrors = validationErrors.concat(validateUserData(row, index));
-          break;
-        case 'scorecards':
-          validationErrors = validationErrors.concat(validateScorecardData(row, index));
-          break;
-        case 'rocks':
-          validationErrors = validationErrors.concat(validateRockData(row, index));
-          break;
-        case 'todos':
-          validationErrors = validationErrors.concat(validateTodoData(row, index));
-          break;
-        case 'issues':
-          validationErrors = validationErrors.concat(validateIssueData(row, index));
-          break;
+      const rowNumber = index + 1;
+      const hasData = Object.values(row).some(value => value && value.toString().trim() !== '');
+      
+      if (!hasData) {
+        validationErrors.push(`Row ${rowNumber}: Empty row`);
       }
     });
 
+    const validRows = csvData.length - validationErrors.length;
+    
     res.json({
+      success: true,
       message: 'CSV file uploaded and parsed successfully',
       filename: req.file.filename,
       type: type,
-      recordCount: csvData.length,
+      totalRows: csvData.length,
+      validRows: validRows,
       preview: csvData.slice(0, 5), // First 5 rows for preview
       headers: Object.keys(csvData[0] || {}),
-      validationErrors: validationErrors,
+      errors: validationErrors,
       isValid: validationErrors.length === 0
     });
 
