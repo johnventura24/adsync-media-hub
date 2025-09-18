@@ -186,7 +186,72 @@ const DataPage: React.FC = () => {
         }
       ]);
     }
-  }, [scorecards.length, rocks.length, todos.length, issues.length]);
+
+    if (meetings.length === 0) {
+      setMeetings([
+        {
+          id: '1',
+          title: 'Weekly L10 Meeting',
+          organizer_name: 'Demo User',
+          start_time: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+          type: 'L10',
+          status: 'scheduled'
+        },
+        {
+          id: '2',
+          title: 'Quarterly Planning Session',
+          organizer_name: 'Demo User',
+          start_time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          type: 'Planning',
+          status: 'scheduled'
+        }
+      ]);
+    }
+
+    if (processes.length === 0) {
+      setProcesses([
+        {
+          id: '1',
+          name: 'Client Onboarding Process',
+          owner_name: 'Demo User',
+          department: 'Sales & Success Team',
+          status: 'active',
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'Content Creation Workflow',
+          owner_name: 'Demo User',
+          department: 'Creative Team',
+          status: 'active',
+          updated_at: new Date().toISOString()
+        }
+      ]);
+    }
+
+    if (users.length === 0) {
+      setUsers([
+        {
+          id: '1',
+          first_name: 'Demo',
+          last_name: 'User',
+          email: 'demo@hubdashboard.com',
+          department: 'Leadership Team',
+          role: 'admin',
+          is_active: true
+        },
+        {
+          id: '2',
+          first_name: 'Jane',
+          last_name: 'Smith',
+          email: 'jane@hubdashboard.com',
+          department: 'Creative Team',
+          role: 'member',
+          is_active: true
+        }
+      ]);
+    }
+  }, [scorecards.length, rocks.length, todos.length, issues.length, meetings.length, processes.length, users.length]);
 
   const loadData = async () => {
     setLoading(true);
@@ -253,16 +318,16 @@ const DataPage: React.FC = () => {
         </Button>
       </Box>
       
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Frequency</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Last Updated</TableCell>
-              <TableCell>Actions</TableCell>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Description</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Frequency</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Last Updated</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -274,11 +339,21 @@ const DataPage: React.FC = () => {
               </TableRow>
             ) : (
               scorecards.map((scorecard: any) => (
-                <TableRow key={scorecard.id}>
-                  <TableCell>{scorecard.name}</TableCell>
-                  <TableCell>{scorecard.description}</TableCell>
+                <TableRow 
+                  key={scorecard.id}
+                  sx={{ 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    '&:last-child td, &:last-child th': { border: 0 }
+                  }}
+                >
+                  <TableCell sx={{ fontWeight: 500 }}>{scorecard.name}</TableCell>
+                  <TableCell sx={{ color: '#666' }}>{scorecard.description}</TableCell>
                   <TableCell>
-                    <Chip label={scorecard.frequency || 'Weekly'} size="small" />
+                    <Chip 
+                      label={scorecard.frequency || 'Weekly'} 
+                      size="small" 
+                      sx={{ backgroundColor: '#e3f2fd', color: '#1976d2' }}
+                    />
                   </TableCell>
                   <TableCell>
                     <Chip 
@@ -287,9 +362,9 @@ const DataPage: React.FC = () => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>{formatDate(scorecard.updated_at)}</TableCell>
+                  <TableCell sx={{ color: '#666' }}>{formatDate(scorecard.updated_at)}</TableCell>
                   <TableCell>
-                    <IconButton size="small"><EditIcon /></IconButton>
+                    <IconButton size="small" sx={{ color: '#1976d2' }}><EditIcon /></IconButton>
                     <IconButton size="small" color="error"><DeleteIcon /></IconButton>
                   </TableCell>
                 </TableRow>
@@ -310,17 +385,17 @@ const DataPage: React.FC = () => {
         </Button>
       </Box>
       
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Owner</TableCell>
-              <TableCell>Quarter</TableCell>
-              <TableCell>Progress</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Due Date</TableCell>
-              <TableCell>Actions</TableCell>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Owner</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Quarter</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Progress</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Due Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -332,20 +407,41 @@ const DataPage: React.FC = () => {
               </TableRow>
             ) : (
               rocks.map((rock: any) => (
-                <TableRow key={rock.id}>
-                  <TableCell>{rock.title}</TableCell>
-                  <TableCell>{rock.owner_name || 'Unassigned'}</TableCell>
+                <TableRow 
+                  key={rock.id}
+                  sx={{ 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    '&:last-child td, &:last-child th': { border: 0 }
+                  }}
+                >
+                  <TableCell sx={{ fontWeight: 500 }}>{rock.title}</TableCell>
+                  <TableCell sx={{ color: '#666' }}>{rock.owner_name || 'Unassigned'}</TableCell>
                   <TableCell>
-                    <Chip label={`${rock.quarter} ${rock.year}`} size="small" />
+                    <Chip 
+                      label={`${rock.quarter} ${rock.year}`} 
+                      size="small" 
+                      sx={{ backgroundColor: '#e8f5e8', color: '#2e7d32' }}
+                    />
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <LinearProgress 
                         variant="determinate" 
                         value={rock.progress_percentage || 0} 
-                        sx={{ width: 60, height: 8 }}
+                        sx={{ 
+                          width: 80, 
+                          height: 8, 
+                          borderRadius: 4,
+                          backgroundColor: '#e0e0e0',
+                          '& .MuiLinearProgress-bar': {
+                            backgroundColor: rock.progress_percentage >= 75 ? '#4caf50' : 
+                                           rock.progress_percentage >= 50 ? '#ff9800' : '#f44336'
+                          }
+                        }}
                       />
-                      <Typography variant="caption">{rock.progress_percentage || 0}%</Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 600, minWidth: 35 }}>
+                        {rock.progress_percentage || 0}%
+                      </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
@@ -355,9 +451,9 @@ const DataPage: React.FC = () => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>{formatDate(rock.due_date)}</TableCell>
+                  <TableCell sx={{ color: '#666' }}>{formatDate(rock.due_date)}</TableCell>
                   <TableCell>
-                    <IconButton size="small"><EditIcon /></IconButton>
+                    <IconButton size="small" sx={{ color: '#1976d2' }}><EditIcon /></IconButton>
                     <IconButton size="small" color="error"><DeleteIcon /></IconButton>
                   </TableCell>
                 </TableRow>
@@ -378,16 +474,16 @@ const DataPage: React.FC = () => {
         </Button>
       </Box>
       
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Assignee</TableCell>
-              <TableCell>Priority</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Due Date</TableCell>
-              <TableCell>Actions</TableCell>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Assignee</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Priority</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Due Date</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -439,17 +535,17 @@ const DataPage: React.FC = () => {
         </Button>
       </Box>
       
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Reporter</TableCell>
-              <TableCell>Assignee</TableCell>
-              <TableCell>Priority</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Actions</TableCell>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Reporter</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Assignee</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Priority</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Category</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -495,61 +591,259 @@ const DataPage: React.FC = () => {
     </Box>
   );
 
+  const renderMeetingsTab = () => (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h6">Meetings & L10s</Typography>
+        <Button startIcon={<AddIcon />} variant="contained">
+          New Meeting
+        </Button>
+      </Box>
+      
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Organizer</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Date & Time</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Type</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {meetings.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  <Alert severity="info">No meetings found. Import your data or schedule new meetings.</Alert>
+                </TableCell>
+              </TableRow>
+            ) : (
+              meetings.map((meeting: any) => (
+                <TableRow key={meeting.id}>
+                  <TableCell>{meeting.title}</TableCell>
+                  <TableCell>{meeting.organizer_name || 'Unknown'}</TableCell>
+                  <TableCell>{formatDate(meeting.start_time)}</TableCell>
+                  <TableCell>
+                    <Chip label={meeting.type || 'L10'} size="small" />
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={meeting.status || 'Scheduled'} 
+                      color={getStatusColor(meeting.status)}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <IconButton size="small"><EditIcon /></IconButton>
+                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+
+  const renderProcessesTab = () => (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h6">Process Documentation</Typography>
+        <Button startIcon={<AddIcon />} variant="contained">
+          New Process
+        </Button>
+      </Box>
+      
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Process Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Owner</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Department</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Last Updated</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {processes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  <Alert severity="info">No processes found. Import your data or document new processes.</Alert>
+                </TableCell>
+              </TableRow>
+            ) : (
+              processes.map((process: any) => (
+                <TableRow key={process.id}>
+                  <TableCell>{process.name}</TableCell>
+                  <TableCell>{process.owner_name || 'Unassigned'}</TableCell>
+                  <TableCell>{process.department || 'General'}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={process.status || 'Active'} 
+                      color={getStatusColor(process.status)}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>{formatDate(process.updated_at)}</TableCell>
+                  <TableCell>
+                    <IconButton size="small"><EditIcon /></IconButton>
+                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+
+  const renderUsersTab = () => (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h6">Team Members</Typography>
+        <Button startIcon={<AddIcon />} variant="contained">
+          Add Member
+        </Button>
+      </Box>
+      
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Department</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Role</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  <Alert severity="info">No users found. Import your team data or add new members.</Alert>
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user: any) => (
+                <TableRow key={user.id}>
+                  <TableCell>{`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown'}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.department || 'General'}</TableCell>
+                  <TableCell>
+                    <Chip label={user.role || 'Member'} size="small" />
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={user.is_active ? 'Active' : 'Inactive'} 
+                      color={user.is_active ? 'success' : 'default'}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <IconButton size="small"><EditIcon /></IconButton>
+                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-            Data
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>
+            Data Hub
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Record and evaluate key metrics, streamlined for strategic success.
+            Your EOS data center - Track Rocks, To-Dos, Issues, Scorecards, and more in one place.
           </Typography>
         </Box>
-        <Button 
-          variant="outlined" 
-          startIcon={<AddIcon />}
-          onClick={() => window.location.href = '/import'}
-        >
-          Import Data
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button 
+            variant="outlined" 
+            startIcon={<AddIcon />}
+            onClick={() => window.location.href = '/import'}
+          >
+            Import Data
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />}
+            sx={{ 
+              background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
+              boxShadow: '0 3px 5px 2px rgba(25, 118, 210, .3)'
+            }}
+          >
+            Quick Add
+          </Button>
+        </Box>
       </Box>
 
       {/* Filters */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
+      <Card sx={{ mb: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2 }}>
+        <CardContent sx={{ pb: '16px !important' }}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                placeholder="Search..."
+                placeholder="Search across all data..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon />
+                      <SearchIcon color="primary" />
                     </InputAdornment>
                   ),
                 }}
                 size="small"
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover fieldset': {
+                      borderColor: '#1976d2',
+                    },
+                  }
+                }}
               />
             </Grid>
             <Grid item xs={12} md={3}>
               <FormControl fullWidth size="small">
                 <InputLabel>Time Period</InputLabel>
-                <Select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)}>
-                  <MenuItem value="weekly">Weekly</MenuItem>
-                  <MenuItem value="monthly">Monthly</MenuItem>
-                  <MenuItem value="quarterly">Quarterly</MenuItem>
-                  <MenuItem value="annual">Annual</MenuItem>
+                <Select 
+                  value={timeFilter} 
+                  onChange={(e) => setTimeFilter(e.target.value)}
+                  sx={{ borderRadius: 2 }}
+                >
+                  <MenuItem value="weekly">This Week</MenuItem>
+                  <MenuItem value="monthly">This Month</MenuItem>
+                  <MenuItem value="quarterly">This Quarter</MenuItem>
+                  <MenuItem value="annual">This Year</MenuItem>
+                  <MenuItem value="all">All Time</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={12} md={3}>
               <FormControl fullWidth size="small">
-                <InputLabel>Team</InputLabel>
-                <Select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
+                <InputLabel>Team/Department</InputLabel>
+                <Select 
+                  value={teamFilter} 
+                  onChange={(e) => setTeamFilter(e.target.value)}
+                  sx={{ borderRadius: 2 }}
+                >
                   <MenuItem value="all">All Teams</MenuItem>
                   <MenuItem value="account">Account Team</MenuItem>
                   <MenuItem value="auto">Auto Team</MenuItem>
@@ -567,18 +861,50 @@ const DataPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
+            <Grid item xs={12} md={2}>
+              <Button 
+                fullWidth 
+                variant="outlined" 
+                size="small"
+                onClick={() => {
+                  setSearchTerm('');
+                  setTimeFilter('weekly');
+                  setTeamFilter('all');
+                }}
+                sx={{ borderRadius: 2, height: 40 }}
+              >
+                Clear Filters
+              </Button>
+            </Grid>
           </Grid>
         </CardContent>
       </Card>
 
       {/* Tabs */}
-      <Card>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2 }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 1 }}>
           <Tabs 
             value={currentTab} 
             onChange={handleTabChange}
             variant="scrollable"
             scrollButtons="auto"
+            sx={{
+              '& .MuiTab-root': {
+                minHeight: 64,
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                fontWeight: 500,
+                '&.Mui-selected': {
+                  color: '#1976d2',
+                  fontWeight: 600,
+                },
+              },
+              '& .MuiTabs-indicator': {
+                height: 3,
+                borderRadius: '3px 3px 0 0',
+                backgroundColor: '#1976d2',
+              },
+            }}
           >
             {tabs.map((tab, index) => (
               <Tab
@@ -587,7 +913,17 @@ const DataPage: React.FC = () => {
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {tab.label}
-                    <Chip label={tab.count} size="small" />
+                    <Chip 
+                      label={tab.count} 
+                      size="small" 
+                      sx={{ 
+                        backgroundColor: currentTab === index ? '#e3f2fd' : '#f5f5f5',
+                        color: currentTab === index ? '#1976d2' : '#666',
+                        fontWeight: currentTab === index ? 600 : 400,
+                        minWidth: 24,
+                        height: 20,
+                      }}
+                    />
                   </Box>
                 }
                 iconPosition="start"
@@ -612,13 +948,13 @@ const DataPage: React.FC = () => {
             {renderIssuesTab()}
           </TabPanel>
           <TabPanel value={currentTab} index={4}>
-            <Alert severity="info">Meetings data view coming soon...</Alert>
+            {renderMeetingsTab()}
           </TabPanel>
           <TabPanel value={currentTab} index={5}>
-            <Alert severity="info">Processes data view coming soon...</Alert>
+            {renderProcessesTab()}
           </TabPanel>
           <TabPanel value={currentTab} index={6}>
-            <Alert severity="info">Users data view coming soon...</Alert>
+            {renderUsersTab()}
           </TabPanel>
         </CardContent>
       </Card>
