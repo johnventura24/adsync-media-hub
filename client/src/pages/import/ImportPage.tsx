@@ -162,17 +162,25 @@ const ImportPage: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
-        Import Data
-      </Typography>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>
+          Import Data from Ninety.io
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Seamlessly migrate your EOS data - Rocks, To-Dos, Issues, Scorecards, and more.
+        </Typography>
+      </Box>
 
       <Grid container spacing={3}>
         {/* Upload Section */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2, height: 'fit-content' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Upload CSV File
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#333' }}>
+                📁 Upload Your CSV File
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Select your data type and upload your Ninety.io export file
               </Typography>
               
               {/* Data Type Selection */}
@@ -182,10 +190,18 @@ const ImportPage: React.FC = () => {
                   value={preUploadType}
                   onChange={(e) => setPreUploadType(e.target.value)}
                   label="Select Data Type"
+                  sx={{ borderRadius: 2 }}
                 >
                   {importTypes.map((type) => (
                     <MenuItem key={type.type} value={type.type}>
-                      {type.name} - {type.description}
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {type.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {type.description}
+                        </Typography>
+                      </Box>
                     </MenuItem>
                   ))}
                 </Select>
@@ -206,6 +222,15 @@ const ImportPage: React.FC = () => {
                   startIcon={<UploadIcon />}
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading || !preUploadType}
+                  sx={{ 
+                    background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
+                    boxShadow: '0 3px 5px 2px rgba(25, 118, 210, .3)',
+                    borderRadius: 2,
+                    px: 4,
+                    py: 1.5,
+                    fontSize: '1rem',
+                    fontWeight: 600
+                  }}
                 >
                   {isUploading ? 'Uploading...' : 'Choose CSV File'}
                 </Button>
@@ -247,14 +272,14 @@ const ImportPage: React.FC = () => {
 
         {/* Templates Section */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2, height: 'fit-content' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Download Templates
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#333' }}>
+                📋 Download Templates
               </Typography>
               
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Download CSV templates for different data types to ensure proper formatting.
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Get the correct CSV format for each data type to ensure successful imports.
               </Typography>
 
               <List>
@@ -271,6 +296,11 @@ const ImportPage: React.FC = () => {
                       size="small"
                       startIcon={<DownloadIcon />}
                       onClick={() => downloadTemplate(type.type)}
+                      sx={{ 
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 500
+                      }}
                     >
                       Download
                     </Button>
@@ -283,14 +313,14 @@ const ImportPage: React.FC = () => {
 
         {/* Instructions */}
         <Grid item xs={12}>
-          <Card>
+          <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2 }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Import Instructions
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#333' }}>
+                🚀 Import Instructions
               </Typography>
               
-              <Typography variant="body1" paragraph>
-                Follow these steps to import your data from Ninety.io or other sources:
+              <Typography variant="body1" paragraph color="text.secondary">
+                Follow these simple steps to migrate your data from Ninety.io:
               </Typography>
 
               <Box component="ol" sx={{ pl: 2 }}>
@@ -311,8 +341,21 @@ const ImportPage: React.FC = () => {
                 </Box>
               </Box>
 
-              <Alert severity="info" sx={{ mt: 2 }}>
-                <strong>Supported Data Types:</strong> Users, Rocks (Goals), To-Dos, Issues, Meetings, Scorecards, and Processes.
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  mt: 3, 
+                  borderRadius: 2,
+                  backgroundColor: '#e3f2fd',
+                  border: '1px solid #1976d2'
+                }}
+              >
+                <Typography variant="body2">
+                  <strong>✅ Supported Data Types:</strong> Users, Rocks (Quarterly Goals), To-Dos, Issues, L10 Meetings, Scorecards, and Process Documentation.
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>💡 Pro Tip:</strong> You can upload any CSV structure - our system will automatically map common column names!
+                </Typography>
               </Alert>
             </CardContent>
           </Card>
