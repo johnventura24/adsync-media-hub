@@ -1,21 +1,14 @@
 import React from 'react';
-import { Box, Typography, Card, CardContent, Alert } from '@mui/material';
+import NinetyPage from '../../components/common/NinetyPage';
 
 const RocksPage: React.FC = () => {
   return (
-    <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
-        Rocks (Quarterly Goals)
-      </Typography>
-      
-      <Card>
-        <CardContent>
-          <Alert severity="info">
-            This page is under construction. The Rocks feature will allow you to manage quarterly goals and track progress.
-          </Alert>
-        </CardContent>
-      </Card>
-    </Box>
+    <NinetyPage
+      title="Rocks"
+      subtitle="Manage your quarterly priorities and 90-day goals"
+      showAddButton={true}
+      onAddClick={() => console.log('Add rock clicked')}
+    />
   );
 };
 

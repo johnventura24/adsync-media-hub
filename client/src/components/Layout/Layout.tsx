@@ -60,6 +60,23 @@ const Layout: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout } = useAuth();
+
+  // Ninety.io color scheme
+  const ninetyColors = {
+    primary: '#2563eb',
+    secondary: '#64748b',
+    success: '#10b981',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    background: '#f8fafc',
+    cardBackground: '#ffffff',
+    border: '#e2e8f0',
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
+      muted: '#94a3b8'
+    }
+  };
   
   // TEMPORARY: Mock user for testing when auth is disabled
   const displayUser = user || {
@@ -92,26 +109,36 @@ const Layout: React.FC = () => {
   };
 
   const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      backgroundColor: ninetyColors.cardBackground,
+      borderRight: `1px solid ${ninetyColors.border}`
+    }}>
       {/* Logo/Brand */}
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <BusinessIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-          Hub Dashboard
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <BusinessIcon sx={{ fontSize: 28, color: ninetyColors.primary }} />
+        <Typography variant="h6" sx={{ 
+          fontWeight: 700, 
+          color: ninetyColors.text.primary,
+          fontSize: '1.125rem'
+        }}>
+          EOS Hub
         </Typography>
       </Box>
       
-      <Divider />
+      <Divider sx={{ borderColor: ninetyColors.border }} />
       
       {/* Organization Selector */}
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 3 }}>
         <OrganizationSelector />
       </Box>
       
-      <Divider />
+      <Divider sx={{ borderColor: ninetyColors.border }} />
       
       {/* Navigation */}
-      <List sx={{ flexGrow: 1, px: 1 }}>
+      <List sx={{ flexGrow: 1, px: 2, py: 1 }}>
         {navigationItems.map((item) => (
           <NavigationItem
             key={item.path}
@@ -145,8 +172,10 @@ const Layout: React.FC = () => {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
-          bgcolor: 'background.paper',
-          color: 'text.primary',
+          backgroundColor: ninetyColors.cardBackground,
+          borderBottom: `1px solid ${ninetyColors.border}`,
+          boxShadow: 'none',
+          color: ninetyColors.text.primary,
         }}
       >
         <Toolbar>
@@ -269,11 +298,11 @@ const Layout: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: 0, // Remove padding to let pages control their own spacing
           width: { md: `calc(100% - ${drawerWidth}px)` },
           mt: 8, // Account for app bar height
           minHeight: 'calc(100vh - 64px)',
-          bgcolor: 'background.default',
+          backgroundColor: ninetyColors.background,
         }}
       >
         <Outlet />

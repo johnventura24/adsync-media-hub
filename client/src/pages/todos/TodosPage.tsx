@@ -1,21 +1,14 @@
 import React from 'react';
-import { Box, Typography, Card, CardContent, Alert } from '@mui/material';
+import NinetyPage from '../../components/common/NinetyPage';
 
 const TodosPage: React.FC = () => {
   return (
-    <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>
-        To-Dos
-      </Typography>
-      
-      <Card>
-        <CardContent>
-          <Alert severity="info">
-            This page is under construction. The To-Dos feature will allow you to manage tasks and action items.
-          </Alert>
-        </CardContent>
-      </Card>
-    </Box>
+    <NinetyPage
+      title="To-Dos"
+      subtitle="Manage tasks, assignments, and action items"
+      showAddButton={true}
+      onAddClick={() => console.log('Add todo clicked')}
+    />
   );
 };
 
