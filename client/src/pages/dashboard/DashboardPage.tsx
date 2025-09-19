@@ -72,12 +72,17 @@ const MetricCard: React.FC<{
 }> = ({ title, value, subtitle, icon, color = 'primary', trend, progress }) => {
   return (
     <Card sx={{ 
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)', 
-      borderRadius: 2,
-      '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
-      transition: 'box-shadow 0.2s ease-in-out'
+      backgroundColor: '#ffffff',
+      border: '1px solid #e2e8f0',
+      borderRadius: 1,
+      boxShadow: 'none',
+      '&:hover': { 
+        borderColor: '#2563eb',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      },
+      transition: 'all 0.2s ease-in-out'
     }}>
-      <CardContent>
+      <CardContent sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Box sx={{ color: `${color}.main` }}>
             {icon}
@@ -171,15 +176,46 @@ const DashboardPage: React.FC = () => {
     );
   }
 
+  // Ninety.io color scheme
+  const ninetyColors = {
+    primary: '#2563eb',
+    secondary: '#64748b',
+    success: '#10b981',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    background: '#f8fafc',
+    cardBackground: '#ffffff',
+    border: '#e2e8f0',
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
+      muted: '#94a3b8'
+    }
+  };
+
   return (
-    <Box>
+    <Box sx={{ backgroundColor: ninetyColors.background, minHeight: '100vh', p: 3 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>
-          EOS Dashboard
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            fontWeight: 700, 
+            mb: 1, 
+            color: ninetyColors.text.primary,
+            fontSize: '2rem'
+          }}
+        >
+          Dashboard
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Welcome back! Here's your EOS performance overview for {currentOrganization.name}
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: ninetyColors.text.secondary,
+            fontSize: '1rem'
+          }}
+        >
+          Welcome back! Here's what's happening at {currentOrganization.name}
         </Typography>
       </Box>
 
@@ -290,10 +326,20 @@ const DashboardPage: React.FC = () => {
       <Grid container spacing={3}>
         {/* Recent Rocks */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#333' }}>
-                🎯 Your Rocks
+          <Card sx={{ 
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 1,
+            boxShadow: 'none'
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ 
+                fontWeight: 600, 
+                mb: 2, 
+                color: '#1e293b',
+                fontSize: '1.125rem'
+              }}>
+                Your Rocks
               </Typography>
               {personalDashboard?.rocks.length === 0 ? (
                 <Typography variant="body2" color="text.secondary">
@@ -326,10 +372,20 @@ const DashboardPage: React.FC = () => {
 
         {/* Recent Tasks */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#333' }}>
-                ✅ Your To-Dos
+          <Card sx={{ 
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 1,
+            boxShadow: 'none'
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ 
+                fontWeight: 600, 
+                mb: 2, 
+                color: '#1e293b',
+                fontSize: '1.125rem'
+              }}>
+                Your To-Dos
               </Typography>
               {personalDashboard?.todos.length === 0 ? (
                 <Typography variant="body2" color="text.secondary">

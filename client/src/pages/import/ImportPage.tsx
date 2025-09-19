@@ -160,24 +160,65 @@ const ImportPage: React.FC = () => {
     }
   };
 
+  // Ninety.io color scheme
+  const ninetyColors = {
+    primary: '#2563eb',
+    secondary: '#64748b',
+    success: '#10b981',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    background: '#f8fafc',
+    cardBackground: '#ffffff',
+    border: '#e2e8f0',
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
+      muted: '#94a3b8'
+    }
+  };
+
   return (
-    <Box>
+    <Box sx={{ backgroundColor: ninetyColors.background, minHeight: '100vh', p: 3 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>
-          Import Data from Ninety.io
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            fontWeight: 700, 
+            mb: 1, 
+            color: ninetyColors.text.primary,
+            fontSize: '2rem'
+          }}
+        >
+          Import Data
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Seamlessly migrate your EOS data - Rocks, To-Dos, Issues, Scorecards, and more.
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: ninetyColors.text.secondary,
+            fontSize: '1rem'
+          }}
+        >
+          Import your data from CSV files or other EOS platforms
         </Typography>
       </Box>
 
       <Grid container spacing={3}>
         {/* Upload Section */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2, height: 'fit-content' }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#333' }}>
-                📁 Upload Your CSV File
+          <Card sx={{ 
+            backgroundColor: ninetyColors.cardBackground,
+            border: `1px solid ${ninetyColors.border}`,
+            borderRadius: 1,
+            boxShadow: 'none',
+            height: 'fit-content'
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ 
+                fontWeight: 600, 
+                color: ninetyColors.text.primary,
+                fontSize: '1.125rem'
+              }}>
+                Upload CSV File
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Select your data type and upload your Ninety.io export file

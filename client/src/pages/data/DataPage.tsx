@@ -25,6 +25,7 @@ import {
   MenuItem,
   TextField,
   InputAdornment,
+  Divider,
 } from '@mui/material';
 import {
   TrackChanges as RocksIcon,
@@ -38,9 +39,9 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Remove as RemoveIcon,
+  FilterList as FilterIcon,
+  ViewList as ViewListIcon,
+  ViewModule as ViewModuleIcon,
 } from '@mui/icons-material';
 import { api } from '../../services/api';
 
@@ -60,7 +61,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`data-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: 0 }}>{children}</Box>}
     </div>
   );
 }
@@ -68,8 +69,9 @@ function TabPanel(props: TabPanelProps) {
 const DataPage: React.FC = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [timeFilter, setTimeFilter] = useState('weekly');
+  const [timeFilter, setTimeFilter] = useState('all');
   const [teamFilter, setTeamFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('table'); // table or cards
   
   // Data states
   const [rocks, setRocks] = useState<any[]>([]);
@@ -81,14 +83,31 @@ const DataPage: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Ninety.io color scheme
+  const ninetyColors = {
+    primary: '#2563eb', // Ninety.io blue
+    secondary: '#64748b', // Gray
+    success: '#10b981', // Green
+    warning: '#f59e0b', // Amber
+    error: '#ef4444', // Red
+    background: '#f8fafc', // Light gray background
+    cardBackground: '#ffffff',
+    border: '#e2e8f0',
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
+      muted: '#94a3b8'
+    }
+  };
+
   const tabs = [
-    { label: 'Scorecards', icon: <ScorecardsIcon />, count: scorecards.length },
-    { label: 'Rocks', icon: <RocksIcon />, count: rocks.length },
-    { label: 'To-Dos', icon: <TodosIcon />, count: todos.length },
-    { label: 'Issues', icon: <IssuesIcon />, count: issues.length },
-    { label: 'Meetings', icon: <MeetingsIcon />, count: meetings.length },
-    { label: 'Processes', icon: <ProcessesIcon />, count: processes.length },
-    { label: 'Users', icon: <UsersIcon />, count: users.length },
+    { label: 'Scorecards', icon: <ScorecardsIcon />, count: scorecards.length, color: ninetyColors.primary },
+    { label: 'Rocks', icon: <RocksIcon />, count: rocks.length, color: ninetyColors.success },
+    { label: 'To-Dos', icon: <TodosIcon />, count: todos.length, color: ninetyColors.warning },
+    { label: 'Issues', icon: <IssuesIcon />, count: issues.length, color: ninetyColors.error },
+    { label: 'Meetings', icon: <MeetingsIcon />, count: meetings.length, color: ninetyColors.secondary },
+    { label: 'Processes', icon: <ProcessesIcon />, count: processes.length, color: ninetyColors.primary },
+    { label: 'People', icon: <UsersIcon />, count: users.length, color: ninetyColors.secondary },
   ];
 
   useEffect(() => {
@@ -101,19 +120,21 @@ const DataPage: React.FC = () => {
       setScorecards([
         {
           id: '1',
-          name: 'Creative Team Scorecard',
-          description: 'Track creative team performance metrics',
-          frequency: 'weekly',
+          name: 'Sales Scorecard',
+          description: 'Weekly sales performance metrics',
+          frequency: 'Weekly',
           is_active: true,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          owner: 'John Smith'
         },
         {
           id: '2', 
-          name: 'Copywriter Performance',
-          description: 'Monitor copywriter deliverables and quality',
-          frequency: 'weekly',
+          name: 'Marketing Scorecard',
+          description: 'Marketing KPIs and lead generation',
+          frequency: 'Weekly',
           is_active: true,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          owner: 'Sarah Johnson'
         }
       ]);
     }
@@ -122,23 +143,25 @@ const DataPage: React.FC = () => {
       setRocks([
         {
           id: '1',
-          title: 'Increase Customer Satisfaction',
+          title: 'Increase Customer Satisfaction to 95%',
           owner_name: 'Demo User',
           quarter: 'Q4',
           year: 2024,
-          progress_percentage: 75,
-          status: 'on_track',
-          due_date: '2024-12-31'
+          progress_percentage: 78,
+          status: 'On Track',
+          due_date: '2024-12-31',
+          priority: 'High'
         },
         {
           id: '2',
-          title: 'Launch Mobile App',
+          title: 'Launch New Product Line',
           owner_name: 'Demo User', 
           quarter: 'Q4',
           year: 2024,
-          progress_percentage: 60,
-          status: 'on_track',
-          due_date: '2024-12-15'
+          progress_percentage: 45,
+          status: 'On Track',
+          due_date: '2024-12-15',
+          priority: 'High'
         }
       ]);
     }
@@ -147,19 +170,21 @@ const DataPage: React.FC = () => {
       setTodos([
         {
           id: '1',
-          title: 'Review Q4 Performance Metrics',
+          title: 'Complete Q4 Performance Review',
           assignee_name: 'Demo User',
-          priority: 'high',
-          status: 'pending',
-          due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+          priority: 'High',
+          status: 'In Progress',
+          due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+          created_at: new Date().toISOString()
         },
         {
           id: '2',
-          title: 'Update Team Documentation',
+          title: 'Update Team Process Documentation',
           assignee_name: 'Demo User',
-          priority: 'medium', 
-          status: 'in_progress',
-          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          priority: 'Medium', 
+          status: 'Not Started',
+          due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          created_at: new Date().toISOString()
         }
       ]);
     }
@@ -168,21 +193,23 @@ const DataPage: React.FC = () => {
       setIssues([
         {
           id: '1',
-          title: 'Server Response Time',
+          title: 'Server Response Time Issues',
           reporter_name: 'Demo User',
-          assignee_name: 'Demo User',
-          priority: 'high',
-          status: 'open',
-          category: 'technical'
+          assignee_name: 'Tech Team',
+          priority: 'High',
+          status: 'Open',
+          category: 'Technical',
+          created_at: new Date().toISOString()
         },
         {
           id: '2',
-          title: 'Communication Gap',
+          title: 'Communication Process Gap',
           reporter_name: 'Demo User',
-          assignee_name: 'Demo User', 
-          priority: 'medium',
-          status: 'open',
-          category: 'process'
+          assignee_name: 'Leadership Team', 
+          priority: 'Medium',
+          status: 'In Review',
+          category: 'Process',
+          created_at: new Date().toISOString()
         }
       ]);
     }
@@ -191,19 +218,21 @@ const DataPage: React.FC = () => {
       setMeetings([
         {
           id: '1',
-          title: 'Weekly L10 Meeting',
+          title: 'Weekly Level 10 Meeting',
           organizer_name: 'Demo User',
           start_time: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
           type: 'L10',
-          status: 'scheduled'
+          status: 'Scheduled',
+          attendees: 8
         },
         {
           id: '2',
-          title: 'Quarterly Planning Session',
+          title: 'Quarterly Business Review',
           organizer_name: 'Demo User',
           start_time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          type: 'Planning',
-          status: 'scheduled'
+          type: 'QBR',
+          status: 'Scheduled',
+          attendees: 12
         }
       ]);
     }
@@ -215,16 +244,18 @@ const DataPage: React.FC = () => {
           name: 'Client Onboarding Process',
           owner_name: 'Demo User',
           department: 'Sales & Success Team',
-          status: 'active',
-          updated_at: new Date().toISOString()
+          status: 'Active',
+          updated_at: new Date().toISOString(),
+          steps: 8
         },
         {
           id: '2',
           name: 'Content Creation Workflow',
           owner_name: 'Demo User',
           department: 'Creative Team',
-          status: 'active',
-          updated_at: new Date().toISOString()
+          status: 'Active',
+          updated_at: new Date().toISOString(),
+          steps: 12
         }
       ]);
     }
@@ -237,8 +268,9 @@ const DataPage: React.FC = () => {
           last_name: 'User',
           email: 'demo@hubdashboard.com',
           department: 'Leadership Team',
-          role: 'admin',
-          is_active: true
+          role: 'Admin',
+          is_active: true,
+          position: 'CEO'
         },
         {
           id: '2',
@@ -246,8 +278,9 @@ const DataPage: React.FC = () => {
           last_name: 'Smith',
           email: 'jane@hubdashboard.com',
           department: 'Creative Team',
-          role: 'member',
-          is_active: true
+          role: 'Member',
+          is_active: true,
+          position: 'Creative Director'
         }
       ]);
     }
@@ -256,7 +289,6 @@ const DataPage: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Load all data types
       const [rocksRes, todosRes, issuesRes, scorecardsRes, meetingsRes, processesRes, usersRes] = await Promise.allSettled([
         api.get('/rocks'),
         api.get('/todos'), 
@@ -287,534 +319,414 @@ const DataPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'completed': case 'done': case 'closed': return 'success';
-      case 'in_progress': case 'active': case 'on_track': return 'primary';
-      case 'overdue': case 'at_risk': case 'high': return 'error';
-      case 'pending': case 'open': case 'medium': return 'warning';
-      default: return 'default';
+      case 'completed': case 'done': case 'closed': case 'active': return ninetyColors.success;
+      case 'in progress': case 'in_progress': case 'on track': case 'scheduled': return ninetyColors.primary;
+      case 'overdue': case 'at_risk': case 'high': return ninetyColors.error;
+      case 'pending': case 'open': case 'medium': case 'in review': return ninetyColors.warning;
+      default: return ninetyColors.secondary;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority?.toLowerCase()) {
-      case 'high': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'success';
-      default: return 'default';
+      case 'high': return ninetyColors.error;
+      case 'medium': return ninetyColors.warning;
+      case 'low': return ninetyColors.success;
+      default: return ninetyColors.secondary;
     }
   };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
-  const renderScorecardsTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6">Scorecards & KPIs</Typography>
-        <Button startIcon={<AddIcon />} variant="contained">
-          New Scorecard
-        </Button>
-      </Box>
-      
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Name</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Frequency</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Last Updated</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
+  const NinetyTable: React.FC<{ data: any[], columns: any[], emptyMessage: string }> = ({ data, columns, emptyMessage }) => (
+    <Box sx={{ 
+      backgroundColor: ninetyColors.cardBackground,
+      border: `1px solid ${ninetyColors.border}`,
+      borderRadius: 1,
+      overflow: 'hidden'
+    }}>
+      <Table size="medium">
+        <TableHead>
+          <TableRow sx={{ backgroundColor: ninetyColors.background }}>
+            {columns.map((col, index) => (
+              <TableCell 
+                key={index}
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  color: ninetyColors.text.primary,
+                  borderBottom: `1px solid ${ninetyColors.border}`,
+                  py: 2
+                }}
+              >
+                {col.label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell 
+                colSpan={columns.length} 
+                align="center"
+                sx={{ 
+                  py: 6,
+                  color: ninetyColors.text.muted,
+                  fontSize: '0.875rem'
+                }}
+              >
+                {emptyMessage}
+              </TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {scorecards.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <Alert severity="info">No scorecards found. Import your data or create new scorecards.</Alert>
-                </TableCell>
+          ) : (
+            data.map((item, index) => (
+              <TableRow 
+                key={item.id || index}
+                sx={{ 
+                  '&:hover': { backgroundColor: '#f1f5f9' },
+                  borderBottom: `1px solid ${ninetyColors.border}`,
+                  '&:last-child': { borderBottom: 'none' }
+                }}
+              >
+                {columns.map((col, colIndex) => (
+                  <TableCell 
+                    key={colIndex}
+                    sx={{ 
+                      fontSize: '0.875rem',
+                      color: ninetyColors.text.primary,
+                      py: 2
+                    }}
+                  >
+                    {col.render ? col.render(item) : item[col.key]}
+                  </TableCell>
+                ))}
               </TableRow>
-            ) : (
-              scorecards.map((scorecard: any) => (
-                <TableRow 
-                  key={scorecard.id}
-                  sx={{ 
-                    '&:hover': { backgroundColor: '#f5f5f5' },
-                    '&:last-child td, &:last-child th': { border: 0 }
-                  }}
-                >
-                  <TableCell sx={{ fontWeight: 500 }}>{scorecard.name}</TableCell>
-                  <TableCell sx={{ color: '#666' }}>{scorecard.description}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={scorecard.frequency || 'Weekly'} 
-                      size="small" 
-                      sx={{ backgroundColor: '#e3f2fd', color: '#1976d2' }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={scorecard.is_active ? 'Active' : 'Inactive'} 
-                      color={scorecard.is_active ? 'success' : 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell sx={{ color: '#666' }}>{formatDate(scorecard.updated_at)}</TableCell>
-                  <TableCell>
-                    <IconButton size="small" sx={{ color: '#1976d2' }}><EditIcon /></IconButton>
-                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </Box>
   );
 
-  const renderRocksTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6">Rocks (Quarterly Goals)</Typography>
-        <Button startIcon={<AddIcon />} variant="contained">
-          New Rock
-        </Button>
-      </Box>
-      
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Owner</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Quarter</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Progress</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Due Date</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rocks.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} align="center">
-                  <Alert severity="info">No rocks found. Import your data or create new quarterly goals.</Alert>
-                </TableCell>
-              </TableRow>
-            ) : (
-              rocks.map((rock: any) => (
-                <TableRow 
-                  key={rock.id}
-                  sx={{ 
-                    '&:hover': { backgroundColor: '#f5f5f5' },
-                    '&:last-child td, &:last-child th': { border: 0 }
-                  }}
-                >
-                  <TableCell sx={{ fontWeight: 500 }}>{rock.title}</TableCell>
-                  <TableCell sx={{ color: '#666' }}>{rock.owner_name || 'Unassigned'}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={`${rock.quarter} ${rock.year}`} 
-                      size="small" 
-                      sx={{ backgroundColor: '#e8f5e8', color: '#2e7d32' }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <LinearProgress 
-                        variant="determinate" 
-                        value={rock.progress_percentage || 0} 
-                        sx={{ 
-                          width: 80, 
-                          height: 8, 
-                          borderRadius: 4,
-                          backgroundColor: '#e0e0e0',
-                          '& .MuiLinearProgress-bar': {
-                            backgroundColor: rock.progress_percentage >= 75 ? '#4caf50' : 
-                                           rock.progress_percentage >= 50 ? '#ff9800' : '#f44336'
-                          }
-                        }}
-                      />
-                      <Typography variant="caption" sx={{ fontWeight: 600, minWidth: 35 }}>
-                        {rock.progress_percentage || 0}%
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={rock.status || 'Not Started'} 
-                      color={getStatusColor(rock.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell sx={{ color: '#666' }}>{formatDate(rock.due_date)}</TableCell>
-                  <TableCell>
-                    <IconButton size="small" sx={{ color: '#1976d2' }}><EditIcon /></IconButton>
-                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
+  const renderScorecardsTab = () => {
+    const columns = [
+      { label: 'Scorecard Name', key: 'name' },
+      { label: 'Owner', key: 'owner' },
+      { label: 'Frequency', key: 'frequency', render: (item: any) => (
+        <Chip 
+          label={item.frequency} 
+          size="small" 
+          sx={{ 
+            backgroundColor: '#e0f2fe',
+            color: ninetyColors.primary,
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Status', key: 'is_active', render: (item: any) => (
+        <Chip 
+          label={item.is_active ? 'Active' : 'Inactive'} 
+          size="small" 
+          sx={{ 
+            backgroundColor: item.is_active ? '#dcfce7' : '#f3f4f6',
+            color: item.is_active ? ninetyColors.success : ninetyColors.text.muted,
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Last Updated', key: 'updated_at', render: (item: any) => formatDate(item.updated_at) },
+    ];
 
-  const renderTodosTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6">To-Dos & Tasks</Typography>
-        <Button startIcon={<AddIcon />} variant="contained">
-          New Task
-        </Button>
-      </Box>
-      
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Assignee</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Priority</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Due Date</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {todos.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <Alert severity="info">No tasks found. Import your data or create new tasks.</Alert>
-                </TableCell>
-              </TableRow>
-            ) : (
-              todos.map((todo: any) => (
-                <TableRow key={todo.id}>
-                  <TableCell>{todo.title}</TableCell>
-                  <TableCell>{todo.assignee_name || 'Unassigned'}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={todo.priority || 'Medium'} 
-                      color={getPriorityColor(todo.priority)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={todo.status || 'Pending'} 
-                      color={getStatusColor(todo.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{formatDate(todo.due_date)}</TableCell>
-                  <TableCell>
-                    <IconButton size="small"><EditIcon /></IconButton>
-                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
+    return <NinetyTable data={scorecards} columns={columns} emptyMessage="No scorecards found" />;
+  };
 
-  const renderIssuesTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6">Issues & Problems</Typography>
-        <Button startIcon={<AddIcon />} variant="contained">
-          New Issue
-        </Button>
-      </Box>
-      
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Reporter</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Assignee</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Priority</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {issues.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} align="center">
-                  <Alert severity="info">No issues found. Import your data or create new issues.</Alert>
-                </TableCell>
-              </TableRow>
-            ) : (
-              issues.map((issue: any) => (
-                <TableRow key={issue.id}>
-                  <TableCell>{issue.title}</TableCell>
-                  <TableCell>{issue.reporter_name || 'Unknown'}</TableCell>
-                  <TableCell>{issue.assignee_name || 'Unassigned'}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={issue.priority || 'Medium'} 
-                      color={getPriorityColor(issue.priority)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={issue.status || 'Open'} 
-                      color={getStatusColor(issue.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip label={issue.category || 'General'} size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton size="small"><EditIcon /></IconButton>
-                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
+  const renderRocksTab = () => {
+    const columns = [
+      { label: 'Rock', key: 'title' },
+      { label: 'Owner', key: 'owner_name' },
+      { label: 'Quarter', key: 'quarter', render: (item: any) => (
+        <Chip 
+          label={`${item.quarter} ${item.year}`} 
+          size="small" 
+          sx={{ 
+            backgroundColor: '#f0fdf4',
+            color: ninetyColors.success,
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Progress', key: 'progress_percentage', render: (item: any) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 120 }}>
+          <LinearProgress 
+            variant="determinate" 
+            value={item.progress_percentage || 0} 
+            sx={{ 
+              flex: 1,
+              height: 6,
+              borderRadius: 3,
+              backgroundColor: '#e2e8f0',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: item.progress_percentage >= 75 ? ninetyColors.success : 
+                               item.progress_percentage >= 50 ? ninetyColors.warning : ninetyColors.error,
+                borderRadius: 3
+              }
+            }}
+          />
+          <Typography variant="caption" sx={{ 
+            fontWeight: 600, 
+            minWidth: 35, 
+            color: ninetyColors.text.secondary,
+            fontSize: '0.75rem'
+          }}>
+            {item.progress_percentage || 0}%
+          </Typography>
+        </Box>
+      )},
+      { label: 'Status', key: 'status', render: (item: any) => (
+        <Chip 
+          label={item.status} 
+          size="small" 
+          sx={{ 
+            backgroundColor: getStatusColor(item.status) + '20',
+            color: getStatusColor(item.status),
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Due Date', key: 'due_date', render: (item: any) => formatDate(item.due_date) },
+    ];
 
-  const renderMeetingsTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6">Meetings & L10s</Typography>
-        <Button startIcon={<AddIcon />} variant="contained">
-          New Meeting
-        </Button>
-      </Box>
-      
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Title</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Organizer</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Date & Time</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Type</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {meetings.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <Alert severity="info">No meetings found. Import your data or schedule new meetings.</Alert>
-                </TableCell>
-              </TableRow>
-            ) : (
-              meetings.map((meeting: any) => (
-                <TableRow key={meeting.id}>
-                  <TableCell>{meeting.title}</TableCell>
-                  <TableCell>{meeting.organizer_name || 'Unknown'}</TableCell>
-                  <TableCell>{formatDate(meeting.start_time)}</TableCell>
-                  <TableCell>
-                    <Chip label={meeting.type || 'L10'} size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={meeting.status || 'Scheduled'} 
-                      color={getStatusColor(meeting.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton size="small"><EditIcon /></IconButton>
-                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
+    return <NinetyTable data={rocks} columns={columns} emptyMessage="No rocks found" />;
+  };
 
-  const renderProcessesTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6">Process Documentation</Typography>
-        <Button startIcon={<AddIcon />} variant="contained">
-          New Process
-        </Button>
-      </Box>
-      
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Process Name</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Owner</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Department</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Last Updated</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {processes.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <Alert severity="info">No processes found. Import your data or document new processes.</Alert>
-                </TableCell>
-              </TableRow>
-            ) : (
-              processes.map((process: any) => (
-                <TableRow key={process.id}>
-                  <TableCell>{process.name}</TableCell>
-                  <TableCell>{process.owner_name || 'Unassigned'}</TableCell>
-                  <TableCell>{process.department || 'General'}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={process.status || 'Active'} 
-                      color={getStatusColor(process.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{formatDate(process.updated_at)}</TableCell>
-                  <TableCell>
-                    <IconButton size="small"><EditIcon /></IconButton>
-                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
+  const renderTodosTab = () => {
+    const columns = [
+      { label: 'Task', key: 'title' },
+      { label: 'Assignee', key: 'assignee_name' },
+      { label: 'Priority', key: 'priority', render: (item: any) => (
+        <Chip 
+          label={item.priority} 
+          size="small" 
+          sx={{ 
+            backgroundColor: getPriorityColor(item.priority) + '20',
+            color: getPriorityColor(item.priority),
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Status', key: 'status', render: (item: any) => (
+        <Chip 
+          label={item.status} 
+          size="small" 
+          sx={{ 
+            backgroundColor: getStatusColor(item.status) + '20',
+            color: getStatusColor(item.status),
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Due Date', key: 'due_date', render: (item: any) => formatDate(item.due_date) },
+    ];
 
-  const renderUsersTab = () => (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6">Team Members</Typography>
-        <Button startIcon={<AddIcon />} variant="contained">
-          Add Member
-        </Button>
-      </Box>
-      
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Name</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Department</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Role</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#333' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <Alert severity="info">No users found. Import your team data or add new members.</Alert>
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((user: any) => (
-                <TableRow key={user.id}>
-                  <TableCell>{`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown'}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.department || 'General'}</TableCell>
-                  <TableCell>
-                    <Chip label={user.role || 'Member'} size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={user.is_active ? 'Active' : 'Inactive'} 
-                      color={user.is_active ? 'success' : 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton size="small"><EditIcon /></IconButton>
-                    <IconButton size="small" color="error"><DeleteIcon /></IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
+    return <NinetyTable data={todos} columns={columns} emptyMessage="No to-dos found" />;
+  };
+
+  const renderIssuesTab = () => {
+    const columns = [
+      { label: 'Issue', key: 'title' },
+      { label: 'Reporter', key: 'reporter_name' },
+      { label: 'Assignee', key: 'assignee_name' },
+      { label: 'Priority', key: 'priority', render: (item: any) => (
+        <Chip 
+          label={item.priority} 
+          size="small" 
+          sx={{ 
+            backgroundColor: getPriorityColor(item.priority) + '20',
+            color: getPriorityColor(item.priority),
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Status', key: 'status', render: (item: any) => (
+        <Chip 
+          label={item.status} 
+          size="small" 
+          sx={{ 
+            backgroundColor: getStatusColor(item.status) + '20',
+            color: getStatusColor(item.status),
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Category', key: 'category', render: (item: any) => (
+        <Chip 
+          label={item.category} 
+          size="small" 
+          variant="outlined"
+          sx={{ fontSize: '0.75rem' }}
+        />
+      )},
+    ];
+
+    return <NinetyTable data={issues} columns={columns} emptyMessage="No issues found" />;
+  };
+
+  const renderMeetingsTab = () => {
+    const columns = [
+      { label: 'Meeting', key: 'title' },
+      { label: 'Organizer', key: 'organizer_name' },
+      { label: 'Date', key: 'start_time', render: (item: any) => formatDate(item.start_time) },
+      { label: 'Type', key: 'type', render: (item: any) => (
+        <Chip 
+          label={item.type} 
+          size="small" 
+          sx={{ 
+            backgroundColor: '#e0f2fe',
+            color: ninetyColors.primary,
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Attendees', key: 'attendees' },
+      { label: 'Status', key: 'status', render: (item: any) => (
+        <Chip 
+          label={item.status} 
+          size="small" 
+          sx={{ 
+            backgroundColor: getStatusColor(item.status) + '20',
+            color: getStatusColor(item.status),
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+    ];
+
+    return <NinetyTable data={meetings} columns={columns} emptyMessage="No meetings found" />;
+  };
+
+  const renderProcessesTab = () => {
+    const columns = [
+      { label: 'Process Name', key: 'name' },
+      { label: 'Owner', key: 'owner_name' },
+      { label: 'Department', key: 'department' },
+      { label: 'Steps', key: 'steps' },
+      { label: 'Status', key: 'status', render: (item: any) => (
+        <Chip 
+          label={item.status} 
+          size="small" 
+          sx={{ 
+            backgroundColor: getStatusColor(item.status) + '20',
+            color: getStatusColor(item.status),
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Last Updated', key: 'updated_at', render: (item: any) => formatDate(item.updated_at) },
+    ];
+
+    return <NinetyTable data={processes} columns={columns} emptyMessage="No processes found" />;
+  };
+
+  const renderUsersTab = () => {
+    const columns = [
+      { label: 'Name', key: 'name', render: (item: any) => `${item.first_name} ${item.last_name}` },
+      { label: 'Email', key: 'email' },
+      { label: 'Position', key: 'position' },
+      { label: 'Department', key: 'department' },
+      { label: 'Role', key: 'role', render: (item: any) => (
+        <Chip 
+          label={item.role} 
+          size="small" 
+          sx={{ 
+            backgroundColor: '#f3f4f6',
+            color: ninetyColors.text.primary,
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+      { label: 'Status', key: 'is_active', render: (item: any) => (
+        <Chip 
+          label={item.is_active ? 'Active' : 'Inactive'} 
+          size="small" 
+          sx={{ 
+            backgroundColor: item.is_active ? '#dcfce7' : '#f3f4f6',
+            color: item.is_active ? ninetyColors.success : ninetyColors.text.muted,
+            fontSize: '0.75rem'
+          }}
+        />
+      )},
+    ];
+
+    return <NinetyTable data={users} columns={columns} emptyMessage="No team members found" />;
+  };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>
-            Data Hub
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Your EOS data center - Track Rocks, To-Dos, Issues, Scorecards, and more in one place.
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="outlined" 
-            startIcon={<AddIcon />}
-            onClick={() => window.location.href = '/import'}
-          >
-            Import Data
-          </Button>
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />}
-            sx={{ 
-              background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
-              boxShadow: '0 3px 5px 2px rgba(25, 118, 210, .3)'
-            }}
-          >
-            Quick Add
-          </Button>
-        </Box>
+    <Box sx={{ backgroundColor: ninetyColors.background, minHeight: '100vh', p: 3 }}>
+      {/* Header - Ninety.io style */}
+      <Box sx={{ mb: 4 }}>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            fontWeight: 700, 
+            mb: 1, 
+            color: ninetyColors.text.primary,
+            fontSize: '2rem'
+          }}
+        >
+          Data
+        </Typography>
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: ninetyColors.text.secondary,
+            fontSize: '1rem'
+          }}
+        >
+          View and manage all your EOS data in one place
+        </Typography>
       </Box>
 
-      {/* Filters */}
-      <Card sx={{ mb: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2 }}>
-        <CardContent sx={{ pb: '16px !important' }}>
-          <Grid container spacing={2} alignItems="center">
+      {/* Filters - Ninety.io style */}
+      <Card sx={{ 
+        mb: 3, 
+        backgroundColor: ninetyColors.cardBackground,
+        border: `1px solid ${ninetyColors.border}`,
+        borderRadius: 1,
+        boxShadow: 'none'
+      }}>
+        <CardContent sx={{ p: 3 }}>
+          <Grid container spacing={3} alignItems="center">
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                placeholder="Search across all data..."
+                placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon color="primary" />
+                      <SearchIcon sx={{ color: ninetyColors.text.muted }} />
                     </InputAdornment>
                   ),
                 }}
                 size="small"
                 sx={{ 
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
+                    borderRadius: 1,
+                    backgroundColor: ninetyColors.cardBackground,
+                    '& fieldset': {
+                      borderColor: ninetyColors.border,
+                    },
                     '&:hover fieldset': {
-                      borderColor: '#1976d2',
+                      borderColor: ninetyColors.primary,
                     },
                   }
                 }}
@@ -822,27 +734,43 @@ const DataPage: React.FC = () => {
             </Grid>
             <Grid item xs={12} md={3}>
               <FormControl fullWidth size="small">
-                <InputLabel>Time Period</InputLabel>
+                <InputLabel sx={{ color: ninetyColors.text.secondary }}>Time Period</InputLabel>
                 <Select 
                   value={timeFilter} 
                   onChange={(e) => setTimeFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
+                  sx={{ 
+                    borderRadius: 1,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: ninetyColors.border,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: ninetyColors.primary,
+                    }
+                  }}
                 >
-                  <MenuItem value="weekly">This Week</MenuItem>
-                  <MenuItem value="monthly">This Month</MenuItem>
-                  <MenuItem value="quarterly">This Quarter</MenuItem>
-                  <MenuItem value="annual">This Year</MenuItem>
                   <MenuItem value="all">All Time</MenuItem>
+                  <MenuItem value="today">Today</MenuItem>
+                  <MenuItem value="week">This Week</MenuItem>
+                  <MenuItem value="month">This Month</MenuItem>
+                  <MenuItem value="quarter">This Quarter</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={12} md={3}>
               <FormControl fullWidth size="small">
-                <InputLabel>Team/Department</InputLabel>
+                <InputLabel sx={{ color: ninetyColors.text.secondary }}>Team</InputLabel>
                 <Select 
                   value={teamFilter} 
                   onChange={(e) => setTeamFilter(e.target.value)}
-                  sx={{ borderRadius: 2 }}
+                  sx={{ 
+                    borderRadius: 1,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: ninetyColors.border,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: ninetyColors.primary,
+                    }
+                  }}
                 >
                   <MenuItem value="all">All Teams</MenuItem>
                   <MenuItem value="account">Account Team</MenuItem>
@@ -863,46 +791,57 @@ const DataPage: React.FC = () => {
             </Grid>
             <Grid item xs={12} md={2}>
               <Button 
-                fullWidth 
-                variant="outlined" 
-                size="small"
-                onClick={() => {
-                  setSearchTerm('');
-                  setTimeFilter('weekly');
-                  setTeamFilter('all');
+                variant="contained"
+                startIcon={<AddIcon />}
+                fullWidth
+                onClick={() => window.location.href = '/import'}
+                sx={{ 
+                  backgroundColor: ninetyColors.primary,
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  boxShadow: 'none',
+                  '&:hover': {
+                    backgroundColor: ninetyColors.primary,
+                    boxShadow: 'none'
+                  }
                 }}
-                sx={{ borderRadius: 2, height: 40 }}
               >
-                Clear Filters
+                Import Data
               </Button>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      {/* Tabs */}
-      <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderRadius: 2 }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 1 }}>
+      {/* Tabs - Ninety.io style */}
+      <Card sx={{ 
+        backgroundColor: ninetyColors.cardBackground,
+        border: `1px solid ${ninetyColors.border}`,
+        borderRadius: 1,
+        boxShadow: 'none'
+      }}>
+        <Box sx={{ borderBottom: `1px solid ${ninetyColors.border}` }}>
           <Tabs 
             value={currentTab} 
             onChange={handleTabChange}
             variant="scrollable"
             scrollButtons="auto"
             sx={{
+              '& .MuiTabs-indicator': {
+                backgroundColor: ninetyColors.primary,
+                height: 3,
+              },
               '& .MuiTab-root': {
-                minHeight: 64,
                 textTransform: 'none',
-                fontSize: '0.95rem',
                 fontWeight: 500,
+                fontSize: '0.875rem',
+                color: ninetyColors.text.secondary,
+                minHeight: 48,
                 '&.Mui-selected': {
-                  color: '#1976d2',
+                  color: ninetyColors.primary,
                   fontWeight: 600,
                 },
-              },
-              '& .MuiTabs-indicator': {
-                height: 3,
-                borderRadius: '3px 3px 0 0',
-                backgroundColor: '#1976d2',
               },
             }}
           >
@@ -917,11 +856,11 @@ const DataPage: React.FC = () => {
                       label={tab.count} 
                       size="small" 
                       sx={{ 
-                        backgroundColor: currentTab === index ? '#e3f2fd' : '#f5f5f5',
-                        color: currentTab === index ? '#1976d2' : '#666',
-                        fontWeight: currentTab === index ? 600 : 400,
-                        minWidth: 24,
+                        backgroundColor: currentTab === index ? '#e0f2fe' : '#f3f4f6',
+                        color: currentTab === index ? ninetyColors.primary : ninetyColors.text.muted,
+                        fontSize: '0.75rem',
                         height: 20,
+                        minWidth: 24,
                       }}
                     />
                   </Box>
@@ -932,9 +871,9 @@ const DataPage: React.FC = () => {
           </Tabs>
         </Box>
 
-        {loading && <LinearProgress />}
+        {loading && <LinearProgress sx={{ backgroundColor: ninetyColors.background }} />}
 
-        <CardContent>
+        <Box sx={{ p: 3 }}>
           <TabPanel value={currentTab} index={0}>
             {renderScorecardsTab()}
           </TabPanel>
@@ -956,7 +895,7 @@ const DataPage: React.FC = () => {
           <TabPanel value={currentTab} index={6}>
             {renderUsersTab()}
           </TabPanel>
-        </CardContent>
+        </Box>
       </Card>
     </Box>
   );
