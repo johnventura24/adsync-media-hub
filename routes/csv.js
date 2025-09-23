@@ -44,17 +44,32 @@ const parseCSVFile = (filePath) => {
     const results = [];
     const errors = [];
     
-    fs.createReadStream(filePath)
-      .pipe(csv())
+    console.log('Starting CSV parsing for:', filePath);
+    
+    fs.createReadStream(filePath, { encoding: 'utf8' })
+      .pipe(csv({
+        skipEmptyLines: true,
+        skipLinesWithError: false,
+        trim: true,
+        // Handle different separators
+        separator: 'auto',
+        // Handle quotes
+        quote: '"',
+        escape: '"',
+      }))
       .on('data', (data) => {
+        console.log('CSV row parsed:', data);
         results.push(data);
       })
       .on('error', (error) => {
+        console.error('CSV parsing error:', error);
         errors.push(error);
       })
       .on('end', () => {
+        console.log('CSV parsing completed. Total rows:', results.length);
         if (errors.length > 0) {
-          reject(errors);
+          console.error('CSV parsing had errors:', errors);
+          reject(new Error(`CSV parsing failed: ${errors.map(e => e.message).join(', ')}`));
         } else {
           resolve(results);
         }
@@ -332,6 +347,14 @@ router.get('/import-types', (req, res) => {
 // Upload and preview CSV file
 router.post('/upload', upload.single('csvFile'), async (req, res) => {
   try {
+    console.log('Upload request received');
+    console.log('File info:', req.file ? {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    } : 'No file');
+    
     if (!req.file) {
       return res.status(400).json({
         error: 'No CSV file uploaded'
@@ -339,6 +362,8 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
     }
 
     const { type } = req.body;
+    console.log('Import type:', type);
+    
     if (!type) {
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
@@ -347,14 +372,28 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
       });
     }
 
+    // Check if file exists and is readable
+    if (!fs.existsSync(req.file.path)) {
+      return res.status(400).json({
+        error: 'Uploaded file not found'
+      });
+    }
+
+    // Read file content for debugging
+    const fileContent = fs.readFileSync(req.file.path, 'utf8');
+    console.log('File content preview (first 200 chars):', fileContent.substring(0, 200));
+    console.log('File size:', fileContent.length, 'characters');
+
     // Parse CSV file
     const csvData = await parseCSVFile(req.file.path);
+    console.log('Parsed CSV data:', csvData.length, 'rows');
+    console.log('First row sample:', csvData[0]);
     
     if (csvData.length === 0) {
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
       return res.status(400).json({
-        error: 'CSV file is empty'
+        error: 'CSV file is empty or could not be parsed. Please check the file format.'
       });
     }
 
@@ -391,9 +430,27 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
     }
     
     console.error('CSV upload error:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to process CSV file';
+    let errorDetails = error.message;
+    
+    if (error.message.includes('CSV parsing failed')) {
+      errorMessage = 'CSV file format error';
+      errorDetails = 'The CSV file could not be parsed. Please check that it is a valid CSV file with proper formatting.';
+    } else if (error.code === 'ENOENT') {
+      errorMessage = 'File not found';
+      errorDetails = 'The uploaded file could not be found on the server.';
+    } else if (error.message.includes('LIMIT_FILE_SIZE')) {
+      errorMessage = 'File too large';
+      errorDetails = 'The CSV file is too large. Please ensure it is under 10MB.';
+    }
+    
     res.status(500).json({
-      error: 'Failed to process CSV file',
-      details: error.message
+      error: errorMessage,
+      details: errorDetails,
+      success: false
     });
   }
 });
