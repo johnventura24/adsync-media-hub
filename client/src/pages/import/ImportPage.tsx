@@ -62,6 +62,7 @@ const ImportPage: React.FC = () => {
   const [selectedImportType, setSelectedImportType] = useState('');
   const [preUploadType, setPreUploadType] = useState(''); // Type selected before upload
   const [importTypes, setImportTypes] = useState<ImportType[]>([]);
+  const [loadingTypes, setLoadingTypes] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load import types on component mount
@@ -71,10 +72,24 @@ const ImportPage: React.FC = () => {
 
   const loadImportTypes = async () => {
     try {
+      console.log('Loading import types...');
+      setLoadingTypes(true);
       const response = await api.get('/csv/import-types');
-      setImportTypes(response.data.types);
+      console.log('Import types response:', response.data);
+      setImportTypes(response.data.types || []);
     } catch (error) {
       console.error('Failed to load import types:', error);
+      // Set fallback import types if API fails
+      setImportTypes([
+        { type: 'scorecards', name: 'Scorecards', description: 'Import scorecards and KPI tracking data', fields: [] },
+        { type: 'rocks', name: 'Rocks (Goals)', description: 'Import quarterly goals and objectives', fields: [] },
+        { type: 'todos', name: 'To-Dos', description: 'Import tasks and action items', fields: [] },
+        { type: 'issues', name: 'Issues', description: 'Import business issues and problems', fields: [] },
+        { type: 'users', name: 'Users', description: 'Import user accounts and profiles', fields: [] },
+        { type: 'generic', name: 'Generic Data', description: 'Import any CSV data with flexible structure', fields: [] }
+      ]);
+    } finally {
+      setLoadingTypes(false);
     }
   };
 
@@ -231,20 +246,35 @@ const ImportPage: React.FC = () => {
                   value={preUploadType}
                   onChange={(e) => setPreUploadType(e.target.value)}
                   label="Select Data Type"
+                  disabled={loadingTypes}
                   sx={{ borderRadius: 2 }}
                 >
-                  {importTypes.map((type) => (
-                    <MenuItem key={type.type} value={type.type}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {type.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {type.description}
-                        </Typography>
-                      </Box>
+                  {loadingTypes ? (
+                    <MenuItem disabled>
+                      <Typography variant="body2" color="text.secondary">
+                        Loading data types...
+                      </Typography>
                     </MenuItem>
-                  ))}
+                  ) : importTypes.length === 0 ? (
+                    <MenuItem disabled>
+                      <Typography variant="body2" color="text.secondary">
+                        No data types available
+                      </Typography>
+                    </MenuItem>
+                  ) : (
+                    importTypes.map((type) => (
+                      <MenuItem key={type.type} value={type.type}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {type.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {type.description}
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    ))
+                  )}
                 </Select>
               </FormControl>
               
