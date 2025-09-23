@@ -147,11 +147,85 @@ const parseDataFile = async (filePath) => {
   
   console.log('Parsing file with extension:', fileExtension);
   
-  if (fileExtension === '.xlsx' || fileExtension === '.xls') {
-    return parseExcelFile(filePath);
-  } else {
-    return await parseCSVFile(filePath);
+  try {
+    if (fileExtension === '.xlsx' || fileExtension === '.xls') {
+      return parseExcelFile(filePath);
+    } else {
+      return await parseCSVFile(filePath);
+    }
+  } catch (error) {
+    console.error('Primary parsing failed, trying fallback methods:', error);
+    
+    // Fallback: Try parsing as Excel even if extension is .csv (in case it's misnamed)
+    if (fileExtension === '.csv') {
+      try {
+        console.log('Trying to parse CSV file as Excel (fallback)');
+        return parseExcelFile(filePath);
+      } catch (excelError) {
+        console.error('Excel fallback also failed:', excelError);
+      }
+    }
+    
+    // Fallback: Try parsing with different CSV options
+    try {
+      console.log('Trying CSV with different separators');
+      return await parseCSVFileWithFallback(filePath);
+    } catch (fallbackError) {
+      console.error('All parsing methods failed:', fallbackError);
+      throw new Error(`Could not parse file: ${error.message}`);
+    }
   }
+};
+
+// Fallback CSV parser with different options
+const parseCSVFileWithFallback = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    const separators = [',', ';', '\t', '|'];
+    
+    // Try different separators
+    let currentSeparatorIndex = 0;
+    
+    const tryNextSeparator = () => {
+      if (currentSeparatorIndex >= separators.length) {
+        reject(new Error('Could not parse CSV with any separator'));
+        return;
+      }
+      
+      const separator = separators[currentSeparatorIndex];
+      console.log('Trying CSV separator:', separator);
+      
+      const tempResults = [];
+      
+      fs.createReadStream(filePath, { encoding: 'utf8' })
+        .pipe(csv({
+          separator: separator,
+          skipEmptyLines: true,
+          trim: true,
+          quote: '"',
+          escape: '"',
+        }))
+        .on('data', (data) => {
+          tempResults.push(data);
+        })
+        .on('error', (error) => {
+          console.error(`CSV parsing error with separator '${separator}':`, error);
+          currentSeparatorIndex++;
+          tryNextSeparator();
+        })
+        .on('end', () => {
+          if (tempResults.length > 0) {
+            console.log(`Successfully parsed with separator '${separator}':`, tempResults.length, 'rows');
+            resolve(tempResults);
+          } else {
+            currentSeparatorIndex++;
+            tryNextSeparator();
+          }
+        });
+    };
+    
+    tryNextSeparator();
+  });
 };
 
 // Validation functions for different entity types
@@ -457,9 +531,22 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
     }
 
     // Read file content for debugging
-    const fileContent = fs.readFileSync(req.file.path, 'utf8');
-    console.log('File content preview (first 200 chars):', fileContent.substring(0, 200));
-    console.log('File size:', fileContent.length, 'characters');
+    let fileContent;
+    try {
+      fileContent = fs.readFileSync(req.file.path, 'utf8');
+      console.log('File content preview (first 500 chars):', fileContent.substring(0, 500));
+      console.log('File size:', fileContent.length, 'characters');
+      console.log('File encoding check - first 20 bytes as hex:', Buffer.from(fileContent.substring(0, 20)).toString('hex'));
+    } catch (readError) {
+      console.error('Could not read file as UTF-8, trying binary:', readError);
+      try {
+        const binaryContent = fs.readFileSync(req.file.path);
+        console.log('File size (binary):', binaryContent.length, 'bytes');
+        console.log('First 20 bytes as hex:', binaryContent.subarray(0, 20).toString('hex'));
+      } catch (binaryError) {
+        console.error('Could not read file at all:', binaryError);
+      }
+    }
 
     // Parse file (CSV or Excel)
     const fileData = await parseDataFile(req.file.path);
