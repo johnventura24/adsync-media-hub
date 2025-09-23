@@ -281,7 +281,7 @@ const ImportPage: React.FC = () => {
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <input
                   type="file"
-                  accept=".csv"
+                  accept=".csv,.xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                   onChange={handleFileUpload}
                   style={{ display: 'none' }}
                   ref={fileInputRef}
@@ -303,7 +303,7 @@ const ImportPage: React.FC = () => {
                     fontWeight: 600
                   }}
                 >
-                  {isUploading ? 'Uploading...' : 'Choose CSV File'}
+                  {isUploading ? 'Uploading...' : 'Choose File (CSV or Excel)'}
                 </Button>
                 
                 {!preUploadType && (
@@ -311,6 +311,10 @@ const ImportPage: React.FC = () => {
                     Select a data type first
                   </Typography>
                 )}
+                
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+                  Supports: CSV (.csv), Excel (.xlsx, .xls)
+                </Typography>
                 
                 {isUploading && (
                   <Box sx={{ mt: 2 }}>

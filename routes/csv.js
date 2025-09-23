@@ -4,6 +4,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const XLSX = require('xlsx');
 const { supabase } = require('../config/database');
 const { authenticateToken, requireManagerOrAdmin, getUserOrganizations, requireOrganizationAccess } = require('../middleware/auth');
 
@@ -30,13 +31,76 @@ const upload = multer({
     fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB default
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'text/csv' || file.originalname.toLowerCase().endsWith('.csv')) {
+    const allowedTypes = [
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/csv',
+      'text/plain'
+    ];
+    
+    const allowedExtensions = ['.csv', '.xlsx', '.xls'];
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
       cb(null, true);
     } else {
-      cb(new Error('Only CSV files are allowed'), false);
+      cb(new Error('Only CSV and Excel files (.csv, .xlsx, .xls) are allowed'), false);
     }
   }
 });
+
+// Excel parsing utilities
+const parseExcelFile = (filePath) => {
+  try {
+    console.log('Starting Excel parsing for:', filePath);
+    
+    // Read the Excel file
+    const workbook = XLSX.readFile(filePath);
+    
+    // Get the first sheet name
+    const sheetName = workbook.SheetNames[0];
+    console.log('Reading sheet:', sheetName);
+    
+    // Get the worksheet
+    const worksheet = workbook.Sheets[sheetName];
+    
+    // Convert to JSON with headers
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+      header: 1, // Use first row as headers
+      defval: '', // Default value for empty cells
+      blankrows: false // Skip blank rows
+    });
+    
+    if (jsonData.length === 0) {
+      throw new Error('Excel file is empty');
+    }
+    
+    // Convert array format to object format
+    const headers = jsonData[0];
+    const results = [];
+    
+    for (let i = 1; i < jsonData.length; i++) {
+      const row = {};
+      headers.forEach((header, index) => {
+        row[header] = jsonData[i][index] || '';
+      });
+      
+      // Only add rows that have some data
+      const hasData = Object.values(row).some(value => value && value.toString().trim() !== '');
+      if (hasData) {
+        results.push(row);
+      }
+    }
+    
+    console.log('Excel parsing completed. Total rows:', results.length);
+    return results;
+    
+  } catch (error) {
+    console.error('Excel parsing error:', error);
+    throw new Error(`Excel parsing failed: ${error.message}`);
+  }
+};
 
 // CSV parsing utilities
 const parseCSVFile = (filePath) => {
@@ -75,6 +139,19 @@ const parseCSVFile = (filePath) => {
         }
       });
   });
+};
+
+// Universal file parser - handles both CSV and Excel
+const parseDataFile = async (filePath) => {
+  const fileExtension = path.extname(filePath).toLowerCase();
+  
+  console.log('Parsing file with extension:', fileExtension);
+  
+  if (fileExtension === '.xlsx' || fileExtension === '.xls') {
+    return parseExcelFile(filePath);
+  } else {
+    return await parseCSVFile(filePath);
+  }
 };
 
 // Validation functions for different entity types
@@ -384,22 +461,22 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
     console.log('File content preview (first 200 chars):', fileContent.substring(0, 200));
     console.log('File size:', fileContent.length, 'characters');
 
-    // Parse CSV file
-    const csvData = await parseCSVFile(req.file.path);
-    console.log('Parsed CSV data:', csvData.length, 'rows');
-    console.log('First row sample:', csvData[0]);
+    // Parse file (CSV or Excel)
+    const fileData = await parseDataFile(req.file.path);
+    console.log('Parsed file data:', fileData.length, 'rows');
+    console.log('First row sample:', fileData[0]);
     
-    if (csvData.length === 0) {
+    if (fileData.length === 0) {
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
       return res.status(400).json({
-        error: 'CSV file is empty or could not be parsed. Please check the file format.'
+        error: 'File is empty or could not be parsed. Please check the file format.'
       });
     }
 
-    // Flexible validation - accept any CSV structure
+    // Flexible validation - accept any file structure
     let validationErrors = [];
-    csvData.forEach((row, index) => {
+    fileData.forEach((row, index) => {
       const rowNumber = index + 1;
       const hasData = Object.values(row).some(value => value && value.toString().trim() !== '');
       
@@ -408,19 +485,22 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
       }
     });
 
-    const validRows = csvData.length - validationErrors.length;
+    const validRows = fileData.length - validationErrors.length;
+    const fileExtension = path.extname(req.file.originalname).toLowerCase();
+    const fileType = ['.xlsx', '.xls'].includes(fileExtension) ? 'Excel' : 'CSV';
     
     res.json({
       success: true,
-      message: 'CSV file uploaded and parsed successfully',
+      message: `${fileType} file uploaded and parsed successfully`,
       filename: req.file.filename,
       type: type,
-      totalRows: csvData.length,
+      totalRows: fileData.length,
       validRows: validRows,
-      preview: csvData.slice(0, 5), // First 5 rows for preview
-      headers: Object.keys(csvData[0] || {}),
+      preview: fileData.slice(0, 5), // First 5 rows for preview
+      headers: Object.keys(fileData[0] || {}),
       errors: validationErrors,
-      isValid: validationErrors.length === 0
+      isValid: validationErrors.length === 0,
+      fileType: fileType
     });
 
   } catch (error) {
@@ -477,16 +557,16 @@ router.post('/import', async (req, res) => {
       });
     }
 
-    // Parse CSV file again
-    const csvData = await parseCSVFile(filePath);
+    // Parse file again (CSV or Excel)
+    const fileData = await parseDataFile(filePath);
     
     let importedCount = 0;
     let errors = [];
     const importResults = [];
 
     // Process each row
-    for (let i = 0; i < csvData.length; i++) {
-      const row = csvData[i];
+    for (let i = 0; i < fileData.length; i++) {
+      const row = fileData[i];
       
       try {
         let transformedData;
