@@ -526,6 +526,58 @@ router.post('/debug-upload', upload.single('csvFile'), async (req, res) => {
   }
 });
 
+// Health check for CSV upload system
+router.get('/health', (req, res) => {
+  try {
+    const uploadDir = path.join(__dirname, '../uploads');
+    const uploadsExists = fs.existsSync(uploadDir);
+    
+    // Check if we can write to uploads directory
+    let canWrite = false;
+    if (uploadsExists) {
+      try {
+        const testFile = path.join(uploadDir, 'test-' + Date.now() + '.tmp');
+        fs.writeFileSync(testFile, 'test');
+        fs.unlinkSync(testFile);
+        canWrite = true;
+      } catch (writeError) {
+        console.error('Cannot write to uploads directory:', writeError);
+      }
+    }
+
+    const status = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      checks: {
+        uploadsDirectory: uploadsExists,
+        canWriteFiles: canWrite,
+        xlsxLibrary: !!require('xlsx'),
+        csvParser: !!require('csv-parser'),
+        multer: !!require('multer'),
+      },
+      supportedTypes: ['csv', 'xlsx', 'xls'],
+      maxFileSize: '10MB',
+      endpoints: [
+        '/csv/import-types',
+        '/csv/upload',
+        '/csv/import',
+        '/csv/debug-upload',
+        '/csv/health'
+      ]
+    };
+
+    console.log('CSV system health check:', status);
+    res.json(status);
+  } catch (error) {
+    console.error('CSV health check error:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Get supported import types
 router.get('/import-types', (req, res) => {
   res.json({
@@ -625,17 +677,57 @@ router.get('/import-types', (req, res) => {
 // Upload and preview CSV file
 router.post('/upload', upload.single('csvFile'), async (req, res) => {
   try {
-    console.log('Upload request received');
+    console.log('=== UPLOAD REQUEST STARTED ===');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Headers:', req.headers);
+    console.log('Body keys:', Object.keys(req.body));
     console.log('File info:', req.file ? {
       originalname: req.file.originalname,
       mimetype: req.file.mimetype,
       size: req.file.size,
-      path: req.file.path
-    } : 'No file');
+      path: req.file.path,
+      fieldname: req.file.fieldname,
+      encoding: req.file.encoding
+    } : 'No file received');
     
+    // Enhanced file validation
     if (!req.file) {
+      console.error('No file in request');
       return res.status(400).json({
-        error: 'No CSV file uploaded'
+        success: false,
+        error: 'No file uploaded',
+        details: 'The file was not received by the server. Please try again.',
+        totalRows: 0,
+        validRows: 0,
+        errors: ['No file uploaded']
+      });
+    }
+
+    // Check file size
+    if (req.file.size === 0) {
+      console.error('Empty file uploaded');
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        success: false,
+        error: 'Empty file',
+        details: 'The uploaded file is empty (0 bytes).',
+        totalRows: 0,
+        validRows: 0,
+        errors: ['File is empty']
+      });
+    }
+
+    // Check file size limit (10MB)
+    if (req.file.size > 10 * 1024 * 1024) {
+      console.error('File too large:', req.file.size);
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        success: false,
+        error: 'File too large',
+        details: 'File must be under 10MB.',
+        totalRows: 0,
+        validRows: 0,
+        errors: ['File exceeds 10MB limit']
       });
     }
 
@@ -680,11 +772,18 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
     console.log('Parsed file data:', fileData.length, 'rows');
     console.log('First row sample:', fileData[0]);
     
-    if (fileData.length === 0) {
+    if (!fileData || fileData.length === 0) {
       // Clean up uploaded file
       fs.unlinkSync(req.file.path);
+      console.error('No data parsed from file');
       return res.status(400).json({
-        error: 'File is empty or could not be parsed. Please check the file format.'
+        success: false,
+        error: 'No data found',
+        details: 'The file could not be parsed or contains no valid data rows. Please check the file format and ensure it has data.',
+        totalRows: 0,
+        validRows: 0,
+        errors: ['No data rows found in file'],
+        filename: req.file.filename
       });
     }
 
@@ -720,31 +819,57 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
   } catch (error) {
     // Clean up uploaded file if it exists
     if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
+      try {
+        fs.unlinkSync(req.file.path);
+        console.log('Cleaned up uploaded file:', req.file.path);
+      } catch (cleanupError) {
+        console.error('Error cleaning up file:', cleanupError);
+      }
     }
     
-    console.error('CSV upload error:', error);
+    console.error('=== UPLOAD ERROR ===');
+    console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
+    console.error('Error code:', error.code);
+    console.error('File info:', req.file ? req.file.originalname : 'No file');
     
-    // Provide more specific error messages
-    let errorMessage = 'Failed to process CSV file';
+    // Provide comprehensive error responses that match the expected format
+    let errorMessage = 'Upload failed';
     let errorDetails = error.message;
+    let specificErrors = [error.message];
     
-    if (error.message.includes('CSV parsing failed')) {
-      errorMessage = 'CSV file format error';
-      errorDetails = 'The CSV file could not be parsed. Please check that it is a valid CSV file with proper formatting.';
+    if (error.message.includes('CSV parsing failed') || error.message.includes('Could not parse file')) {
+      errorMessage = 'File format error';
+      errorDetails = 'The file could not be parsed. It may be corrupted, have an unsupported format, or contain invalid data.';
+      specificErrors = ['File format not supported or corrupted'];
     } else if (error.code === 'ENOENT') {
       errorMessage = 'File not found';
-      errorDetails = 'The uploaded file could not be found on the server.';
-    } else if (error.message.includes('LIMIT_FILE_SIZE')) {
+      errorDetails = 'The uploaded file could not be found on the server. Please try uploading again.';
+      specificErrors = ['File not found on server'];
+    } else if (error.message.includes('LIMIT_FILE_SIZE') || error.code === 'LIMIT_FILE_SIZE') {
       errorMessage = 'File too large';
-      errorDetails = 'The CSV file is too large. Please ensure it is under 10MB.';
+      errorDetails = 'The file is too large. Please ensure it is under 10MB.';
+      specificErrors = ['File exceeds size limit'];
+    } else if (error.message.includes('Only CSV and Excel files')) {
+      errorMessage = 'Invalid file type';
+      errorDetails = 'Please upload only CSV (.csv) or Excel (.xlsx, .xls) files.';
+      specificErrors = ['Invalid file type'];
+    } else if (error.message.includes('Excel parsing failed')) {
+      errorMessage = 'Excel file error';
+      errorDetails = 'The Excel file could not be read. Please ensure it is a valid Excel file and try again.';
+      specificErrors = ['Excel file corrupted or invalid'];
     }
     
+    // Return consistent error format
     res.status(500).json({
+      success: false,
       error: errorMessage,
       details: errorDetails,
-      success: false
+      totalRows: 0,
+      validRows: 0,
+      errors: specificErrors,
+      filename: req.file ? req.file.originalname : 'Unknown',
+      timestamp: new Date().toISOString()
     });
   }
 });
