@@ -30,6 +30,7 @@ import ProfilePage from './pages/profile/ProfilePage';
 import ImportPage from './pages/import/ImportPage';
 import DataPage from './pages/data/DataPage';
 import SettingsPage from './pages/settings/SettingsPage';
+import DebugUpload from './pages/debug/DebugUpload';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -165,6 +166,7 @@ function App() {
                       <Route path="processes" element={<ProcessesPage />} />
                       <Route path="team" element={<TeamPage />} />
                       <Route path="import" element={<ImportPage />} />
+                      <Route path="debug-upload" element={<DebugUpload />} />
                       <Route path="profile" element={<ProfilePage />} />
                       <Route path="settings" element={<SettingsPage />} />
                     </Route>

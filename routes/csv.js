@@ -399,6 +399,133 @@ const transformIssueData = (row, organizationId, userId) => ({
   due_date: row.due_date ? new Date(row.due_date).toISOString().split('T')[0] : null
 });
 
+// Debug endpoint to test file parsing
+router.post('/debug-upload', upload.single('csvFile'), async (req, res) => {
+  try {
+    console.log('=== DEBUG UPLOAD STARTED ===');
+    console.log('Request received at:', new Date().toISOString());
+    
+    if (!req.file) {
+      return res.json({
+        success: false,
+        error: 'No file uploaded',
+        debug: 'req.file is null or undefined'
+      });
+    }
+
+    console.log('File info:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path,
+      destination: req.file.destination,
+      filename: req.file.filename
+    });
+
+    // Check if file exists
+    const fileExists = fs.existsSync(req.file.path);
+    console.log('File exists on disk:', fileExists);
+
+    if (!fileExists) {
+      return res.json({
+        success: false,
+        error: 'File not found on disk',
+        debug: `File path: ${req.file.path}`
+      });
+    }
+
+    // Get file stats
+    const stats = fs.statSync(req.file.path);
+    console.log('File stats:', {
+      size: stats.size,
+      isFile: stats.isFile(),
+      modified: stats.mtime
+    });
+
+    // Try to read raw file content
+    let rawContent = null;
+    let textContent = null;
+    let hexContent = null;
+
+    try {
+      rawContent = fs.readFileSync(req.file.path);
+      textContent = rawContent.toString('utf8');
+      hexContent = rawContent.subarray(0, 50).toString('hex');
+      
+      console.log('Raw file size:', rawContent.length);
+      console.log('Text content length:', textContent.length);
+      console.log('First 50 bytes as hex:', hexContent);
+      console.log('First 200 chars as text:', textContent.substring(0, 200));
+      
+      // Check for common file signatures
+      const isExcel = hexContent.startsWith('504b0304') || hexContent.startsWith('d0cf11e0');
+      const isCsv = textContent.includes(',') || textContent.includes(';') || textContent.includes('\t');
+      
+      console.log('File type detection:', { isExcel, isCsv });
+      
+    } catch (readError) {
+      console.error('Error reading file:', readError);
+      return res.json({
+        success: false,
+        error: 'Could not read file',
+        debug: readError.message
+      });
+    }
+
+    // Try parsing
+    let parseResult = null;
+    let parseError = null;
+
+    try {
+      parseResult = await parseDataFile(req.file.path);
+      console.log('Parse successful. Rows:', parseResult.length);
+      console.log('First row:', parseResult[0]);
+    } catch (error) {
+      parseError = error.message;
+      console.error('Parse failed:', error);
+    }
+
+    // Clean up file
+    fs.unlinkSync(req.file.path);
+
+    res.json({
+      success: parseResult !== null,
+      debug: {
+        fileInfo: {
+          name: req.file.originalname,
+          size: stats.size,
+          mimetype: req.file.mimetype
+        },
+        content: {
+          textLength: textContent?.length || 0,
+          hexPreview: hexContent,
+          textPreview: textContent?.substring(0, 200) || 'Could not read as text'
+        },
+        parsing: {
+          success: parseResult !== null,
+          rowCount: parseResult?.length || 0,
+          firstRow: parseResult?.[0] || null,
+          error: parseError
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Debug upload error:', error);
+    
+    // Clean up file if it exists
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    res.json({
+      success: false,
+      error: 'Debug upload failed',
+      debug: error.message
+    });
+  }
+});
+
 // Get supported import types
 router.get('/import-types', (req, res) => {
   res.json({
