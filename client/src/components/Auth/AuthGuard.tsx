@@ -37,7 +37,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
 
   return <>{children}</>;
-}
 };
 
 export default AuthGuard;
