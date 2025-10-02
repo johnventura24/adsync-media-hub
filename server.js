@@ -10,6 +10,7 @@ const fs = require('fs');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const supabaseAuthRoutes = require('./routes/supabase-auth');
 const userRoutes = require('./routes/users');
 const scorecardRoutes = require('./routes/scorecards');
 const rocksRoutes = require('./routes/rocks');
@@ -93,6 +94,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/supabase-auth', supabaseAuthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/scorecards', scorecardRoutes);
 app.use('/api/rocks', rocksRoutes);
