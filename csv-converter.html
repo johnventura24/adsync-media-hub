@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to Supabase SQL Converter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            resize: vertical;
+            min-height: 200px;
+        }
+        
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .success {
+            background-color: #10b981;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        
+        .error {
+            background-color: #ef4444;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        
+        .instructions {
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #2563eb;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 CSV to Supabase SQL Converter</h1>
+        <p class="subtitle">Convert your CSV data to SQL INSERT statements for Supabase</p>
+        
+        <div class="instructions">
+            <h3>🚀 How to Use:</h3>
+            <ol>
+                <li><strong>Paste your CSV data</strong> in the text area below</li>
+                <li><strong>Select the table type</strong> (scorecards, rocks, todos, etc.)</li>
+                <li><strong>Click "Generate SQL"</strong></li>
+                <li><strong>Copy the generated SQL</strong></li>
+                <li><strong>Paste it in Supabase → SQL Editor</strong></li>
+                <li><strong>Click "Run" in Supabase</strong></li>
+            </ol>
+        </div>
+        
+        <div class="two-column">
+            <div>
+                <div class="form-group">
+                    <label for="tableType">Table Type:</label>
+                    <select id="tableType">
+                        <option value="scorecards">Scorecards (KPIs & Metrics)</option>
+                        <option value="rocks">Rocks (Quarterly Goals)</option>
+                        <option value="todos">To-Dos (Tasks & Action Items)</option>
+                        <option value="issues">Issues (Problems & Issues)</option>
+                        <option value="meetings">Meetings</option>
+                        <option value="processes">Processes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="department">Department/Team:</label>
+                    <select id="department">
+                        <option value="Account Team">Account Team</option>
+                        <option value="Auto Team">Auto Team</option>
+                        <option value="Creative Team">Creative Team</option>
+                        <option value="CRO Team">CRO Team</option>
+                        <option value="Finance & Admin Team">Finance & Admin Team</option>
+                        <option value="Leadership Team">Leadership Team</option>
+                        <option value="Media Team">Media Team</option>
+                        <option value="Medicare ACA">Medicare ACA</option>
+                        <option value="Sales & Success Team">Sales & Success Team</option>
+                        <option value="Taxonomy">Taxonomy</option>
+                        <option value="Tech Team">Tech Team</option>
+                        <option value="Testing Team">Testing Team</option>
+                        <option value="VII">VII</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <div class="form-group">
+                    <label>Sample CSV Format:</label>
+                    <textarea readonly style="height: 120px;">Name,Goal,Average,Total,Owner
+Copywriter - Total Deliverables,>= 1,0,0,John Smith
+Designer - Projects Completed,>= 5,3,3,Jane Doe
+Manager - Team Performance,>= 90%,85%,85%,Bob Wilson</textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="csvData">Paste Your CSV Data Here:</label>
+            <textarea id="csvData" placeholder="Paste your CSV data here...
+
+Example:
+Name,Goal,Average,Total,Owner
+Copywriter - Total Deliverables,>= 1,0,0,John Smith
+Designer - Projects Completed,>= 5,3,3,Jane Doe"></textarea>
+        </div>
+        
+        <button onclick="generateSQL()">🔄 Generate SQL</button>
+        <button onclick="clearAll()" style="background-color: #6b7280;">🗑️ Clear All</button>
+        
+        <div id="result"></div>
+        
+        <div class="form-group" id="sqlOutput" style="display: none;">
+            <label for="generatedSQL">Generated SQL (Copy this to Supabase):</label>
+            <textarea id="generatedSQL" readonly></textarea>
+            <button onclick="copySQL()" style="margin-top: 10px;">📋 Copy SQL</button>
+        </div>
+    </div>
+
+    <script>
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[index] || '';
+                });
+                data.push(row);
+            }
+            
+            return { headers, data };
+        }
+        
+        function mapColumns(headers, tableType) {
+            const mappings = {
+                scorecards: {
+                    'Name': 'name', 'Title': 'name',
+                    'Goal': 'goal', 'Target': 'goal',
+                    'Average': 'average', 'Avg': 'average',
+                    'Total': 'total',
+                    'Owner': 'owner_name', 'Assignee': 'owner_name'
+                },
+                rocks: {
+                    'Title': 'title', 'Name': 'title',
+                    'Description': 'description',
+                    'Quarter': 'quarter', 'Year': 'year',
+                    'Status': 'status', 'Progress': 'completion_percentage',
+                    'Owner': 'owner_name'
+                },
+                todos: {
+                    'Title': 'title', 'Task': 'title',
+                    'Description': 'description', 'Priority': 'priority',
+                    'Status': 'status', 'Assignee': 'assignee_name',
+                    'Owner': 'assignee_name'
+                },
+                issues: {
+                    'Title': 'title', 'Issue': 'title',
+                    'Description': 'description', 'Priority': 'priority',
+                    'Status': 'status', 'Category': 'category',
+                    'Reporter': 'reporter_name', 'Assignee': 'assignee_name'
+                },
+                meetings: {
+                    'Title': 'title', 'Meeting': 'title',
+                    'Description': 'description', 'Organizer': 'organizer_name',
+                    'Date': 'start_time', 'Time': 'start_time'
+                },
+                processes: {
+                    'Name': 'name', 'Process': 'name',
+                    'Description': 'description', 'Owner': 'owner_name',
+                    'Steps': 'steps'
+                }
+            };
+            
+            return mappings[tableType] || {};
+        }
+        
+        function generateSQL() {
+            const csvData = document.getElementById('csvData').value;
+            const tableType = document.getElementById('tableType').value;
+            const department = document.getElementById('department').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!csvData.trim()) {
+                resultDiv.innerHTML = '<div class="error">❌ Please paste your CSV data first!</div>';
+                return;
+            }
+            
+            try {
+                const { headers, data } = parseCSV(csvData);
+                const columnMapping = mapColumns(headers, tableType);
+                
+                if (data.length === 0) {
+                    resultDiv.innerHTML = '<div class="error">❌ No data rows found in CSV!</div>';
+                    return;
+                }
+                
+                // Generate SQL
+                let sql = `-- Generated SQL for ${tableType} table\\n`;
+                sql += `-- Run this in your Supabase SQL Editor\\n\\n`;
+                
+                // Table creation
+                sql += `-- Create table if it doesn't exist\\n`;
+                sql += `CREATE TABLE IF NOT EXISTS public.${tableType} (\\n`;
+                sql += `  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\\n`;
+                
+                const tableSchemas = {
+                    scorecards: ['name TEXT', 'goal TEXT', 'average TEXT', 'total TEXT', 'owner_name TEXT', 'department TEXT'],
+                    rocks: ['title TEXT', 'description TEXT', 'quarter TEXT', 'year INTEGER', 'status TEXT', 'completion_percentage INTEGER', 'owner_name TEXT', 'department TEXT'],
+                    todos: ['title TEXT', 'description TEXT', 'priority TEXT', 'status TEXT', 'assignee_name TEXT', 'department TEXT'],
+                    issues: ['title TEXT', 'description TEXT', 'priority TEXT', 'status TEXT', 'category TEXT', 'reporter_name TEXT', 'assignee_name TEXT', 'department TEXT'],
+                    meetings: ['title TEXT', 'description TEXT', 'organizer_name TEXT', 'department TEXT', 'start_time TIMESTAMPTZ'],
+                    processes: ['name TEXT', 'description TEXT', 'owner_name TEXT', 'department TEXT', 'steps TEXT']
+                };
+                
+                tableSchemas[tableType].forEach(col => {
+                    sql += `  ${col},\\n`;
+                });
+                sql += `  created_at TIMESTAMPTZ DEFAULT NOW()\\n`;
+                sql += `);\\n\\n`;
+                
+                // Column additions
+                sql += `-- Add missing columns if table already exists\\n`;
+                tableSchemas[tableType].forEach(col => {
+                    const colName = col.split(' ')[0];
+                    const colType = col.split(' ').slice(1).join(' ');
+                    sql += `ALTER TABLE public.${tableType} ADD COLUMN IF NOT EXISTS ${colName} ${colType};\\n`;
+                });
+                sql += `\\n`;
+                
+                // Data insertion
+                const columns = tableSchemas[tableType].map(col => col.split(' ')[0]);
+                sql += `-- Insert data\\n`;
+                sql += `INSERT INTO public.${tableType} (${columns.join(', ')}) VALUES\\n`;
+                
+                const valueRows = data.map(row => {
+                    const values = columns.map(col => {
+                        let value = '';
+                        
+                        // Map CSV columns to database columns
+                        for (const [csvCol, dbCol] of Object.entries(columnMapping)) {
+                            if (dbCol === col && row[csvCol]) {
+                                value = row[csvCol];
+                                break;
+                            }
+                        }
+                        
+                        // Set defaults
+                        if (!value) {
+                            if (col === 'department') value = department;
+                            else if (col === 'quarter') value = 'Q1';
+                            else if (col === 'year') value = new Date().getFullYear().toString();
+                            else if (col === 'status') value = 'pending';
+                            else if (col === 'priority') value = 'medium';
+                            else value = '';
+                        }
+                        
+                        // Handle data types
+                        if (col === 'year' || col === 'completion_percentage') {
+                            const num = parseInt(value);
+                            return isNaN(num) ? 'NULL' : num;
+                        }
+                        
+                        // Escape quotes and return string
+                        return value ? `'${value.replace(/'/g, "''")}'` : 'NULL';
+                    });
+                    
+                    return `  (${values.join(', ')})`;
+                });
+                
+                sql += valueRows.join(',\\n');
+                sql += ';\\n\\n';
+                sql += `-- Verify data was inserted\\n`;
+                sql += `SELECT COUNT(*) as inserted_rows FROM public.${tableType};\\n`;
+                sql += `SELECT * FROM public.${tableType} ORDER BY created_at DESC LIMIT 5;`;
+                
+                document.getElementById('generatedSQL').value = sql;
+                document.getElementById('sqlOutput').style.display = 'block';
+                
+                resultDiv.innerHTML = `<div class="success">✅ SQL generated successfully! Found ${data.length} rows of data. Copy the SQL below and paste it in Supabase SQL Editor.</div>`;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error processing CSV: ${error.message}</div>`;
+            }
+        }
+        
+        function copySQL() {
+            const sqlText = document.getElementById('generatedSQL');
+            sqlText.select();
+            document.execCommand('copy');
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '✅ Copied!';
+            button.style.backgroundColor = '#10b981';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.backgroundColor = '#2563eb';
+            }, 2000);
+        }
+        
+        function clearAll() {
+            document.getElementById('csvData').value = '';
+            document.getElementById('generatedSQL').value = '';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('sqlOutput').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
