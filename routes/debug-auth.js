@@ -107,10 +107,36 @@ router.get('/setup-rpc', async (req, res) => {
   }
 });
 
+// Check environment variables
+router.get('/check-env', (req, res) => {
+  res.json({
+    hasSupabaseUrl: !!process.env.SUPABASE_URL,
+    hasSupabaseAnonKey: !!process.env.SUPABASE_ANON_KEY,
+    hasSupabaseServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    supabaseUrlPreview: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.substring(0, 30) + '...' : 'NOT SET',
+    nodeEnv: process.env.NODE_ENV,
+    allEnvKeys: Object.keys(process.env).filter(key => key.includes('SUPABASE'))
+  });
+});
+
 // Simple profile check
 router.get('/check-profile/:email', async (req, res) => {
   try {
     const { email } = req.params;
+    
+    // Check environment first
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+      return res.json({
+        email: email,
+        profileExists: false,
+        profile: null,
+        error: 'Supabase environment variables not configured',
+        debug: {
+          hasSupabaseUrl: !!process.env.SUPABASE_URL,
+          hasSupabaseAnonKey: !!process.env.SUPABASE_ANON_KEY
+        }
+      });
+    }
     
     const { data: profile, error } = await supabase
       .from('profiles')
