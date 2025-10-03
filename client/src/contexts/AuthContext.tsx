@@ -121,7 +121,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           authApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
           // Verify token and get user data
-          const response = await authApi.get('/auth/me');
+          let response;
+          try {
+            response = await authApi.get('/supabase-auth/me');
+          } catch (supabaseError) {
+            console.log('Supabase /me failed, trying original:', supabaseError);
+            response = await authApi.get('/auth/me');
+          }
           dispatch({
             type: 'SET_USER',
             payload: {
@@ -147,10 +153,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await authApi.post('/auth/login', {
-        email,
-        password,
-      });
+      // Try the new Supabase auth endpoint first
+      let response;
+      try {
+        response = await authApi.post('/supabase-auth/login', {
+          email,
+          password,
+        });
+      } catch (supabaseError) {
+        console.log('Supabase auth failed, trying original auth:', supabaseError);
+        // Fallback to original auth endpoint
+        response = await authApi.post('/auth/login', {
+          email,
+          password,
+        });
+      }
 
       const { token, user } = response.data;
       
